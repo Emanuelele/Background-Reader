@@ -6,36 +6,41 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>{{ config('app.name', 'Laravel') }}</title>
-        <link rel="stylesheet" href="{{ asset('assets/vendors/mdi/css/materialdesignicons.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('assets/vendors/css/vendor.bundle.base.css') }}">
-        <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+        <link rel="stylesheet" href="{{ asset('assets/login/style.css') }}">
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     </head>
     <body>
-        <div class="container-scroller">
-            <div class="container-fluid page-body-wrapper full-page-wrapper">
-                <div class="row w-100 m-0">
-                    <div class="content-wrapper full-page-wrapper d-flex align-items-center auth login-bg">
-                        <div class="card col-lg-4 mx-auto">
-                            <div class="card-body px-5 py-5">
-                                <h3 class="card-title text-left mb-3">Login</h3>
-                                <form action="{{ route('login.handler') }}">
-                                    <div class="text-center">
-                                        <button type="submit" class="btn btn-primary btn-block enter-btn">Login with Discord</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
+        @if ($errors->any())
+            <script defer type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+            @foreach ($errors->all() as $error)
+                <script>
+                    Toastify({
+                        text: "{{ $error }}",
+                        close: true,
+                        style: {
+                            background: "linear-gradient(to right, rgb(255, 95, 109), rgb(189, 89, 17))"
+                        }
+                    }).showToast();
+                </script>
+            @endforeach
+        @endif
+        <div id="__nuxt">
+            <div class="bg-home-background h-screen w-screen bg-[length:auto_120%] bg-center bg-no-repeat">
+                <div class="flex h-screen w-screen flex-col items-center justify-center bg-p-black-500/80">
+                    <img src="https://www.peakville.it/_nuxt/logo.20020244.png" alt="Peakville" class="block w-40 md:w-52" draggable="false">
+                    <div class="mt-9 text-xl font-bold text-p-beige-100 md:text-2xl"> Gestionale Peakville '70 vibes </div>
+                    <div class="mt-7 flex w-fit flex-col gap-4 md:flex-row">
+                        <a href="{{ route('login.handler') }}" target="_blank" class="block w-fit">
+                            <button class="block w-fit rounded-xl border-2 border-p-beige-100 px-6 py-2 font-heading text-p-beige-500 outline outline-2 transition-colors md:px-8 md:py-3 bg-p-blue-500 outline-p-blue-900 hover:bg-p-blue-900">
+                                Login with Discord
+                            </button>
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
-        <script src="{{ asset('assets/vendors/js/vendor.bundle.base.js') }}"></script>
-        <script src="{{ asset('assets/js/off-canvas.js') }}"></script>
-        <script src="{{ asset('assets/js/hoverable-collapse.js') }}"></script>
-        <script src="{{ asset('assets/js/misc.js') }}"></script>
-        <script src="{{ asset('assets/js/settings.js') }}"></script>
-        <script src="{{ asset('assets/js/todolist.js') }}"></script>
-    </body>
+    </body>      
 </html>
 
 

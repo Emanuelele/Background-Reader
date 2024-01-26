@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 
 use App\Http\Controllers\DiscordLogin;
+use App\Http\Controllers\WhitelistController;
 use Illuminate\Support\Facades\Route;
 
 /*

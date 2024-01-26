@@ -17,7 +17,7 @@
         <div class="container-scroller">
             <nav class="sidebar sidebar-offcanvas" id="sidebar">
                 <div class="sidebar-brand-wrapper d-none d-lg-flex align-items-center justify-content-center fixed-top">
-                    <a class="sidebar-brand brand-logo" href="index.html"><img src="assets/images/logo.svg" alt="logo" /></a>
+                    <a class="sidebar-brand brand-logo" href="index.html"><img src="https://www.peakville.it/_nuxt/logo.20020244.png" alt="logo" /></a>
                     <a class="sidebar-brand brand-logo-mini" href="index.html"><img src="assets/images/logo-mini.svg" alt="logo" /></a>
                 </div>
                 <ul class="nav">
@@ -25,11 +25,11 @@
                         <div class="profile-desc">
                             <div class="profile-pic">
                                 <div class="count-indicator">
-                                <img class="img-xs rounded-circle " src="assets/images/faces/face15.jpg" alt="">
+                                <img class="img-xs rounded-circle " src="{{ Auth::user()->avatar }}" alt="">
                                 <span class="count bg-success"></span>
                             </div>
                             <div class="profile-name">
-                                <h5 class="mb-0 font-weight-normal">Emanuelele_</h5> <!-- TO-DO -->
+                                <h5 class="mb-0 font-weight-normal">{{ Auth::user()->username }}</h5> <!-- TO-DO -->
                                 <span>Admin</span> <!-- TO-DO -->
                             </div>
                         </div>
@@ -91,8 +91,8 @@
                         <li class="nav-item dropdown">
                             <a class="nav-link" id="profileDropdown" href="#" data-toggle="dropdown">
                                 <div class="navbar-profile">
-                                    <img class="img-xs rounded-circle" src="assets/images/faces/face15.jpg" alt="">
-                                    <p class="mb-0 d-none d-sm-block navbar-profile-name">Henry Klein</p>
+                                    <img class="img-xs rounded-circle" src="{{ Auth::user()->avatar }}" alt="">
+                                    <p class="mb-0 d-none d-sm-block navbar-profile-name">{{ Auth::user()->username }}</p>
                                     <i class="mdi mdi-menu-down d-none d-sm-block"></i>
                                 </div>
                             </a>

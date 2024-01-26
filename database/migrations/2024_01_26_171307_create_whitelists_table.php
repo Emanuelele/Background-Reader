@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('whitelist', function (Blueprint $table) {
-            $table->id();
+        Schema::create('whitelists', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->string('generality');
+            $table->string('link');
+            $table->string('type');
+            $table->string('discord_id');
             $table->timestamps();
         });
     }
@@ -22,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('whitelist');
+        Schema::dropIfExists('whitelists');
     }
 };
