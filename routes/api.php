@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\WhitelistController;
+use App\Http\Controllers\BackgroundController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,5 +20,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::middleware('api')->group(function () {
-    Route::post('/makewhitelistmodule', [WhitelistController::class, 'make']);
+    Route::post('/makebackgroundmodule', [BackgroundController::class, 'make']);
 });

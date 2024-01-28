@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('whitelists', function (Blueprint $table) {
+        Schema::create('backgrounds', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('generality');
             $table->string('link');
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('whitelists');
+        Schema::dropIfExists('backgrounds');
     }
 };

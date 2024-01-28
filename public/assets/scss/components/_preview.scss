@@ -44,10 +44,10 @@
         position: absolute;
         width: 14px;
         &.badge-online {
-          @extend .badge-success;
+          @extend .badge-approved;
         }
         &.badge-offline {
-          @extend .badge-info;
+          @extend .badge-other;
         }
         &.badge-busy {
           @extend .badge-warning;

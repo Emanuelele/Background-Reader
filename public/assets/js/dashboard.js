@@ -113,7 +113,7 @@
           ctx.font = fontSize + "rem sans-serif";
           ctx.textAlign = 'left';
           ctx.textBaseline = "middle";
-          ctx.fillStyle = "#6c7293";
+          ctx.fillStyle = "##a5a9c2";
 
           var texts = "Total", 
               textsX = Math.round((width - ctx.measureText(text).width) / 1.93),
@@ -183,7 +183,7 @@
           ctx.font = fontSize + "rem sans-serif";
           ctx.textAlign = 'left';
           ctx.textBaseline = "middle";
-          ctx.fillStyle = "#6c7293";
+          ctx.fillStyle = "##a5a9c2";
 
           var texts = "مجموع", 
               textsX = Math.round((width - ctx.measureText(text).width) / 1.93),

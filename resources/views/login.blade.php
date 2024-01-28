@@ -31,7 +31,7 @@
                     <img src="https://www.peakville.it/_nuxt/logo.20020244.png" alt="Peakville" class="block w-40 md:w-52" draggable="false">
                     <div class="mt-9 text-xl font-bold text-p-beige-100 md:text-2xl"> Gestionale Peakville '70 vibes </div>
                     <div class="mt-7 flex w-fit flex-col gap-4 md:flex-row">
-                        <a href="{{ route('login.handler') }}" target="_blank" class="block w-fit">
+                        <a href="{{ route('login.handler') }}" target="_self" class="block w-fit">
                             <button class="block w-fit rounded-xl border-2 border-p-beige-100 px-6 py-2 font-heading text-p-beige-500 outline outline-2 transition-colors md:px-8 md:py-3 bg-p-blue-500 outline-p-blue-900 hover:bg-p-blue-900">
                                 Login with Discord
                             </button>
