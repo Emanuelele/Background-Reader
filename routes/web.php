@@ -20,15 +20,20 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('login');
 });
+
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
     Route::get('backgroundget/{type}', [BackgroundController::class, 'getBackgroundFromType'])->name('background.get');
     Route::get('getbackground', [BackgroundController::class, 'getAllBackground'])->name('background.getall');
-    Route::get('showmoreinfo', [BackgroundController::class, 'getDiscordUserInfo'])->name('background.info');
-    Route::get('showmoreinfo/{id}', [BackgroundController::class, 'getDiscordUserInfo']);
+    Route::get('readbackground', [BackgroundController::class, 'readBackground'])->name('background.read');
+    Route::post('showmoreinfo', [BackgroundController::class, 'getDiscordUserInfo'])->name('background.info');
+    Route::post('resultBackground', [BackgroundController::class, 'resultBackground'])->name('background.result');
     Route::patch('updatebackground', [BackgroundController::class, 'updateBackground'])->name('background.update');
+});
+
+Route::middleware('auth', 'admin')->group(function () {
     Route::delete('deletebackground', [BackgroundController::class, 'deleteBackground'])->name('background.delete');
 });
 

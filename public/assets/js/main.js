@@ -1,3 +1,11 @@
+const allButtons = `
+    <button onclick=\"updatestatus(this, 'approved')\" type=\"button\" class=\"btn btn-primary btn-rounded btn-icon\"><i class=\"material-icons\">done</i></button>
+    <button onclick=\"updatestatus(this, 'denied')\" type=\"button\" class=\"btn btn-warning btn-rounded btn-icon\"><i class=\"material-icons\">close</i></button>
+    <button onclick=\"edit(this)\" type=\"button\" class=\"btn btn-success btn-rounded btn-icon\"><i class=\"material-icons\">edit</i></button>
+    <button onclick=\"cancel(this)\" type=\"button\" class=\"btn btn-danger btn-rounded btn-icon\"><i class=\"material-icons\">delete</i></button>
+    <button onclick=\"info(this)\" type=\"button\" class=\"btn btn-info btn-rounded btn-icon\"><i class=\"material-icons\">info</i></button>
+`;
+
 function request(url, params, method) {
     return new Promise((resolve, reject) => {
         fetch(url, {
@@ -12,9 +20,9 @@ function request(url, params, method) {
         .then(data => {
             if (data.success){ 
                 showToast(data.success);
-                resolve(true);
+                resolve({ success: true, data: data.data });
             } else showToast(data.error, true);
-            resolve(false);
+            resolve({ success: false, data: data.data });
         })
         .catch(error => {
             console.error(error);
@@ -23,75 +31,52 @@ function request(url, params, method) {
     });
 }
 
-const cancel = (element) => {
+const cancel = async (element) => {
     if (confirm("Sei sicuro di voler procedere?")) {
-        var elementId = element.parentNode.parentNode.dataset.backgroundid;
-        var url = backgroundDeleteUrl;
-        var params = { background_id: elementId };
-        var method = "DELETE";
-        var response = request(url, params, method);
-        if(response) element.parentNode.parentNode.remove();
+        const response = await request(backgroundDeleteUrl, { background_id: element.parentNode.parentNode.dataset.backgroundid }, "DELETE");
+        if(response.success) element.parentNode.parentNode.remove();
     }
 }
 
 const edit = (element) => {
-    var cell = element.closest('td');
-    var row = cell.closest('tr');
-    var originalData = [];
-    for (var i = 0; i < row.cells.length; i++) originalData.push(row.cells[i].innerText);
+    const cell = element.closest('td');
+    const row = cell.closest('tr');
+    const originalData = [];
+    for (let i = 0; i < row.cells.length; i++) originalData.push(row.cells[i].innerText);
     cell.innerHTML = `
         <button type="button" class="btn btn-success btn-rounded btn-icon" onclick="save(this, [${originalData.map(data => `'${data}'`).join(', ')}])"><i class="material-icons">save</i></button>
         <button type="button" class="btn btn-warning btn-rounded btn-icon" onclick="undo(this, [${originalData.map(data => `'${data}'`).join(', ')}])"><i class="material-icons">undo</i></button>
     `;
-    for (var i = 0; i < row.cells.length -1; i++) row.cells[i].innerHTML = `<input type="text" class="form-control" value="${originalData[i]}">`;
+    for (let i = 0; i < row.cells.length -1; i++) row.cells[i].innerHTML = `<input type="text" class="form-control" value="${originalData[i]}">`;
 }
 
 const undo = (element, originalData) => {
-    var row = element.closest('tr');
-    var cells = row.cells;
-    cells[cells.length - 1].innerHTML = `
-        <button onclick=\"updatestatus(this, 'approved')\" type=\"button\" class=\"btn btn-primary btn-rounded btn-icon\"><i class=\"material-icons\">done</i></button>
-        <button onclick=\"updatestatus(this, 'denied')\" type=\"button\" class=\"btn btn-warning btn-rounded btn-icon\"><i class=\"material-icons\">close</i></button>
-        <button onclick=\"edit(this)\" type=\"button\" class=\"btn btn-success btn-rounded btn-icon\"><i class=\"material-icons\">edit</i></button>
-        <button onclick=\"cancel(this)\" type=\"button\" class=\"btn btn-danger btn-rounded btn-icon\"><i class=\"material-icons\">delete</i></button>
-        <button onclick=\"info(this)\" type=\"button\" class=\"btn btn-info btn-rounded btn-icon\"><i class=\"material-icons\">info</i></button>
-    `;
-    for (var i = 0; i < cells.length - 1; i++) if(i == 3) cells[i].innerHTML = '<label class="badge badge-'+originalData[i]+'"style="width: 100%">'+originalData[i]+'</label>'; else cells[i].innerText = originalData[i];
+    const cells = element.closest('tr').cells;
+    cells[cells.length - 1].innerHTML = allButtons;
+    for (let i = 0; i < cells.length - 1; i++) if(i == 3) cells[i].innerHTML = '<label class="badge badge-'+originalData[i]+'"style="width: 40%">'+originalData[i]+'</label>'; else cells[i].innerText = originalData[i];
 }
 
-const save = (element, originalData) => {
-    var row = element.closest('tr');
-    var cells = row.cells;
-    var newData = [];
-    for (var i = 0; i < cells.length - 1; i++) newData.push(cells[i].querySelector('input').value);
-    var elementId = element.parentNode.parentNode.dataset.backgroundid;
-    var url = backgroundUpdateUrl;
-    var method = "PATCH";
-    var params = { background_id: elementId, discord_id: newData[0], generality: newData[1], link: newData[2], type: newData[3] };
-    var response = request(url, params, method);
-    if(response){
-        cells[cells.length - 1].innerHTML = `
-            <button onclick=\"updatestatus(this, 'approved')\" type=\"button\" class=\"btn btn-primary btn-rounded btn-icon\"><i class=\"material-icons\">done</i></button>
-            <button onclick=\"updatestatus(this, 'denied')\" type=\"button\" class=\"btn btn-warning btn-rounded btn-icon\"><i class=\"material-icons\">close</i></button>
-            <button onclick=\"edit(this)\" type=\"button\" class=\"btn btn-success btn-rounded btn-icon\"><i class=\"material-icons\">edit</i></button>
-            <button onclick=\"cancel(this)\" type=\"button\" class=\"btn btn-danger btn-rounded btn-icon\"><i class=\"material-icons\">delete</i></button>
-            <button onclick=\"info(this)\" type=\"button\" class=\"btn btn-info btn-rounded btn-icon\"><i class=\"material-icons\">info</i></button>
-        `;
-        for (var i = 0; i < cells.length - 1; i++) if(i == 3) cells[i].innerHTML = '<label class="badge badge-'+newData[i]+'"style="width: 100%">'+newData[i]+'</label>'; else cells[i].innerText = newData[i];
-    }
+const save = async (element, originalData) => {
+    const cells = element.closest('tr').cells;
+    const newData = [];
+    for (let i = 0; i < cells.length - 1; i++) newData.push(cells[i].querySelector('input').value);
+    const response = await request(backgroundUpdateUrl, { background_id: element.parentNode.parentNode.dataset.backgroundid, discord_id: newData[0], generality: newData[1], link: newData[2], type: newData[3] }, "PATCH");
+    if(response.success){
+        cells[cells.length - 1].innerHTML = allButtons;
+        for (let i = 0; i < cells.length - 1; i++) if(i == 3) cells[i].innerHTML = '<label class="badge badge-'+newData[i]+'"style="width: 40%">'+newData[i]+'</label>'; else cells[i].innerText = newData[i];
+    } else undo(element, originalData);
 }
 
-const updatestatus = (element, newStatus) => {
-    var row = element.closest('tr');
-    var cells = row.cells;
-    var data = [];
-    for (var i = 0; i < cells.length - 1; i++) data.push(row.cells[i].innerText);
-    var elementId = element.parentNode.parentNode.dataset.backgroundid;
-    var url = backgroundUpdateUrl;
-    var method = "PATCH";
-    var params = { background_id: elementId, discord_id: data[0], generality: data[1], link: data[2], type: newStatus };
-    var response = request(url, params, method);
-    if(response) cells[3].innerHTML = '<label class="badge badge-'+newStatus+'"style="width: 100%">'+newStatus+'</label>';
+const updatestatus = async (element, newStatus) => {
+    const row = element.closest('tr');
+    const cells = row.cells;
+    const data = [];
+    for (let i = 0; i < cells.length - 1; i++) data.push(row.cells[i].innerText);
+    const note = prompt("Inserisci delle note:");
+    const updateResponse =  await request(backgroundUpdateUrl, { background_id: element.parentNode.parentNode.dataset.backgroundid, discord_id: data[0], generality: data[1], link: data[2], type: newStatus, note: note }, "PATCH");
+    if(updateResponse.success) cells[3].innerHTML = '<label class="badge badge-'+newStatus+'"style="width: 40%">'+newStatus+'</label>';
+    const resultResponse = await request(backgroundResultUrl, { background_id: element.parentNode.parentNode.dataset.backgroundid, result: newStatus }, "POST");
+    //if(resultResponse.success) cells[4].innerHTML = ''; /* TO-FINISH: pulsante skip o return dash, aggiornamento stats, correzione tabelle,  */
 }
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -115,31 +100,26 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
+const setElementText = (elementId, text) => {
+    document.getElementById(elementId).innerText = text;
+}
+
 const info = async (element) => {
-    document.getElementById('discord_username').innerText = "";
-    document.getElementById('discord_globalname').innerText = "";
-    document.getElementById('bgcount_presentati').innerText = "";
-    document.getElementById('bgcount_approvati').innerText = "";
-    document.getElementById('bgcount_rifiutati').innerText = "";
-    var moreinfo = document.getElementById('moreinfo');
+    const moreinfo = document.getElementById('moreinfo');
     moreinfo.style.display = 'block';
-    var closebtn = document.getElementById('closebtn');
-    closebtn.addEventListener('click', function() {
+    
+    const response = await request(backgroundInfoUrl, { discord_id: element.closest('tr').cells[0].innerText }, "POST");
+    
+    setElementText('discord_username', (response.success && response.data.username) ? response.data.username : "null");
+    setElementText('discord_globalname', (response.success && response.data.global_name) ? response.data.global_name : "null");
+    setElementText('bgcount_presentati', (response.success && response.data.new) ? response.data.new : "0");
+    setElementText('bgcount_approvati', (response.success && response.data.approved) ? response.data.approved : "0");
+    setElementText('bgcount_rifiutati', (response.success && response.data.denied) ? response.data.denied : "0");
+
+    const closebtn = document.getElementById('closebtn');
+    closebtn.addEventListener('click', () => {
         moreinfo.style.display = 'none';
     });
-    var row = element.closest('tr');
-    var discord_id = row.cells[0].innerText;
-    const url = backgroundInfoUrl+"/"+discord_id;
-    var response = await fetch(url, {
-        method: "GET",
-        headers: {'content-Type': 'application/json'}
-    });
-    response = await response.json();
-    document.getElementById('discord_username').innerText = response.data.username;
-    document.getElementById('discord_globalname').innerText = response.data.global_name;
-    document.getElementById('bgcount_presentati').innerText = response.data.new;
-    document.getElementById('bgcount_approvati').innerText = response.data.approved;
-    document.getElementById('bgcount_rifiutati').innerText = response.data.denied;
 }
 
 showToast = (message, error) => {

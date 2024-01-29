@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Background;
 use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Auth;
 
 class BackgroundController extends Controller {
     
@@ -38,7 +40,7 @@ class BackgroundController extends Controller {
      */
     public function getBackgroundFromType(string $type): View{
         $backgrounds = Background::where('type', $type)->get();
-        return view('newbackgrounds', ['backgrounds' => $backgrounds, 'navVisualBackgroundType' => $type]);
+        return view('backgrounds', ['backgrounds' => $backgrounds, 'navVisualBackgroundType' => $type]);
     }
 
     /**
@@ -48,7 +50,7 @@ class BackgroundController extends Controller {
      */
     public function getAllBackground(): View{
         $backgrounds = Background::all();
-        return view('newbackgrounds', ['backgrounds' => $backgrounds]);
+        return view('backgrounds', ['backgrounds' => $backgrounds]);
     }
 
     /**
@@ -99,20 +101,59 @@ class BackgroundController extends Controller {
     }
 
     /**
+     * Make a cURL request to the Discord API with the provided Discord ID.
+     *
+     * @param string $discordId
+     * @return array
+     */
+    private function makeDiscordApiRequest(string $discordId): array {
+        $apiUrl = "https://discord.com/api/v10/users/{$discordId}";
+        $ch = curl_init($apiUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bot ' . env('DISCORD_BOT_TOKEN')]);
+        $response = curl_exec($ch);
+
+        if (!$response) {
+            return [
+                'error' => 'Errore nel server, riprova più tardi',
+                'data' => [],
+            ];
+        }
+
+        return json_decode($response, true);
+    }
+
+    /**
+     * Get the full URL of the Discord user's avatar.
+     *
+     * @param string $discordId
+     * @param string|null $avatarHash
+     * @return string|null
+     */
+    private function getAvatarUrl(string $discordId, string $avatarHash): ?string {
+        return is_null($avatarHash || $discordId) ? "https://cdn.discordapp.com/icons/1015976925367378040/a_8aab7490e9efb8cc53487de73e4521c7.webp?size=240" : 
+            "https://cdn.discordapp.com/avatars/{$discordId}/{$avatarHash}.png";
+    }
+
+    /**
      * Get Discord user information based on the provided Discord ID.
      *
      * @param string $discordId
      * @return JsonResponse
      */
-    public function getDiscordUserInfo(string $discordId): JsonResponse {
-        $apiUrl = "https://discord.com/api/v10/users/{$discordId}";
-        $ch = curl_init($apiUrl);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bot ' . env('DISCORD_BOT_TOKEN'),]);
-        $response = curl_exec($ch);
-        if(!$response) return response()->json(['error' => 'Errore nel server, riprova più tardi', 'data' => []], 500);
-        $data = array_merge(json_decode($response, true), $this->backgroundCountFromDiscordUserId($discordId));
+    public function getDiscordUserInfo(Request $Request): JsonResponse {
+        $data = array_merge($this->makeDiscordApiRequest($Request->discord_id), $this->backgroundCountFromDiscordUserId($Request->discord_id));
         return response()->json(['success' => 'Informazioni caricate', 'data' => $data], 200);
+    }
+
+    /**
+     * Get Discord user information based on the provided Discord ID.
+     *
+     * @param string $discordId
+     * @return array
+     */
+    private function getDiscordUserInfoPv(string $discordId): array {
+        return array_merge($this->makeDiscordApiRequest($discordId), $this->backgroundCountFromDiscordUserId($discordId));
     }
 
     /**
@@ -121,8 +162,10 @@ class BackgroundController extends Controller {
      * @param string $discord_id
      * @return array
      */
-    public function backgroundCountFromDiscordUserId(string $discord_id): array {
+    private function backgroundCountFromDiscordUserId(string $discord_id): array {
         return [
+            'isWhitelisted' => $this->isDiscorduserWhitelisted($discord_id),
+            'isBanned' => $this->isDiscorduserBanned($discord_id),
             'new' => DB::table('backgrounds')->where('discord_id', $discord_id)->count(),
             'approved' => DB::table('backgrounds')->where('type', 'approved')->where('discord_id', $discord_id)->count(),
             'denied' => DB::table('backgrounds')->where('type', 'denied')->where('discord_id', $discord_id)->count(),
@@ -147,5 +190,48 @@ class BackgroundController extends Controller {
      */
     public function isDiscorduserBanned(string $discord_id): bool {
         return false; //to-do
+    }
+
+    /**
+     * Read the oldest new background and retrieve additional information.
+     *
+     * @return View
+     */
+    public function readBackground(): View {
+        $background =  Background::where('type', 'new')->orderBy('created_at', 'asc')->first();
+        $backgrounds =  Background::where('discord_id', $background->discord_id)->orderBy('created_at', 'asc');
+        if(!$background) return view('readbackground', [
+            'oldestNewBackground' => null,
+            'additionalInfo' => null,
+        ]);
+        $additionalInfo = $this->getDiscordUserInfoPv($background->discord_id);
+        return view('readbackground', [
+            'background' => $background,
+            'backgrounds' => $backgrounds,
+            'additionalInfo' => $additionalInfo,
+            'avatarUrl' => $this->getAvatarUrl($additionalInfo['id'], $additionalInfo['avatar']),
+        ]);
+    }
+
+    public function sendDiscordWebhook($message, $type): void {
+        if($type == "approved") $webhookUrl = 'https://discord.com/api/webhooks/1201365218371063878/jQiMRIk1hGJ5JkjrS2rdk0TgyFk1DyCvKk3jcLX08ZTZmKGTY9yibAM_HL-YzAN-X76d';
+        else $webhookUrl = 'https://discord.com/api/webhooks/1201367735997841500/Fn1332abNEAlarsojxIHdoKIsBeu-yaMHuqRNMxzV-ywix8FO2aHIwCyrm3Bat0afUAc';
+        $response = Http::post($webhookUrl, [
+            'content' => $message,
+        ]);
+    }
+
+    public function resultBackground(Request $Request): JsonResponse  {
+        try {
+            $background = Background::find($Request->background_id);
+            if(!$background) return response()->json(['error' => 'Background non trovato'], 400);
+            if($Request->result == "approved") $message = '<@'.$background->discord_id.'> Background approvato! Note: "'.$background->note.'". By <@'.Auth::user()->id.'>';
+            else $message = '<@'.$background->discord_id.'> Background NON approvato! Note:"'.$background->note.'". By <@'.Auth::user()->id.'>';
+            $this->sendDiscordWebhook($message, $Request->result);
+            return response()->json(['success' => 'Background approvato con successo'], 200);
+        } catch(Exception $e) {
+            return response()->json(['error' => 'Errore nel server'.$e], 500);
+        }
+        
     }
 }

@@ -163,10 +163,11 @@
         <!-- main js -->
         <script src="{{ asset('assets/js/dashboard.js') }}"></script>
         <script>
-            var backgroundDeleteUrl = "{{ route('background.delete') }}";
-            var backgroundUpdateUrl = "{{ route('background.update') }}";
-            var backgroundInfoUrl = "{{ route('background.info') }}";
-            var csrfToken = "{{ csrf_token() }}";
+            const backgroundDeleteUrl = "{{ route('background.delete') }}";
+            const backgroundUpdateUrl = "{{ route('background.update') }}";
+            const backgroundInfoUrl = "{{ route('background.info') }}";
+            const backgroundResultUrl = "{{ route('background.result') }}";
+            const csrfToken = "{{ csrf_token() }}";
         </script>
         <script src="{{ asset('assets/js/main.js') }}"></script>
       </body>

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('link');
             $table->string('type');
             $table->string('discord_id');
+            $table->string('note')->nullable();
             $table->timestamps();
         });
     }

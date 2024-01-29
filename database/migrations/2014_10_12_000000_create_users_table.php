@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('id')->primary();
             $table->string('avatar')->nullable();
             $table->string('username')->nullable();
+            $table->string('grade')->dafault('staff');
             $table->rememberToken();
             $table->timestamps();
         });

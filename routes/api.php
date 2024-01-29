@@ -19,6 +19,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::middleware('api')->group(function () {
+Route::middleware('api', 'ip.filter')->group(function () {
     Route::post('/makebackgroundmodule', [BackgroundController::class, 'make']);
 });
