@@ -1,66 +1,116 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+<p align="center"><a href="https://busipage.it" target="_blank"><img src="	https://instagram.ffco3-1.fna.fbcdn.net/v/t51.2885…9C8sPhtgA3Fm4OMuZGUMSA&oe=65BF9EC3&_nc_sid=8b3546" width="400" alt="Busipage Logo"></a></p>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+---
 
-## About Laravel
+## Chi siamo
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Sviluppiamo strumenti, utili per aumentare la visibilità online, aumentare le vendite, gestire leads, e far risparmiare tempo prezioso a chi possiede un business. Con anni di esperienza nella creazione di soluzioni personalizzate per i nostri clienti, abbiamo acquisito una vasta conoscenza e competenza in molti settori digitali. Nello specifico ci occupiamo di sviluppare:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- Landing pages
+- Analisi seo
+- Ecommerce
+- Web-App gestionali
+- Web-App contenuti
+- Database
+- Gaming servers
+- Community Discord
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Tutte le soluzioni e i recapiti sono disponibili su [busipage.it](https://busipage.it)
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Funzionalità della Web-App
+Questa applicazione offre un'interfaccia intuitiva e completa per semplificare il processo di invio, lettura e approvazione/rifiuto dei background dei personaggi presentati dagli utenti. Più nello specifico:
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+- **Invio dei background tramite bot Discord**: L'utente che intende inviare un background allo staff dovà compilare due semplici campi: Generalità del personaggio e link al documento google dove è stato scritto il background.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- **Verifica automatica da parte della Rest-Api**: La Web-App dispone di una Rest-Api che provvederà autonomamente a controllare se il documento google presentato è accessibile e se l'utente rispetta i parametri prestabiliti per poter inviare un background.
 
-## Laravel Sponsors
+- **Salvataggio del background**: Se l'utente e il background soddisfano i requisiti sarà avviata la fase di registrazione nel database.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- **Autenticazione tramite OAuth2 API Discord**: Il sitema di autenticazione per gli staffer è efficace e sicuro. Al momento del login l'utente verrà reindirizzato alla pagina di autenticazione ufficiale di Discord, una volta autenticato sarà reindirizzato nella dashboard della Web-App.
 
-### Premium Partners
+- **Lettura di un background**: Al momento della lettura di un background, verrà presentato allo staffer il più vecchio background con status "NEW". Sarà possibile accedere direttamente dalla pagina alle statistiche personali dell'utente, al background presentato e ad eventuali background presentati in passato.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+- **Approvazione/Rifiuto di un background**: Al momento dell'approvazione/rifiuto di un background la Web-App provvederà autonomamente a: 
+    1) Scaricare in formato pdf il background tramite API Google. 
+    2) Mandare nell'apposito canale Discord l'esito della valutazione taggando utente e staffer. 
+    3) Aggiornare automaticamente i ruoli dell'utente in base all'esito della valutazione.
 
-## Contributing
+- **Gestione dei background**: E' prevista un'apposita pagina per la gestione dei background dove è possibile: 
+    1) Modificare i dati del background. 
+    2) Accedere direttamente alla pagina di valuazione 
+    3) Eliminare un background.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+NB: I permessi di accesso e modifica degli staffer sono gestiti tramite bot Discord.
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Specifiche sulle tipologie di dati
 
-## Security Vulnerabilities
+<div style="display: flex; padding-bottom: 2%; padding-left: 5%">
+Lista status di un background:
+<div style="padding-left:30%"></div>
+Lista permessi staffer
+</div>
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+<div style="display: flex">
 
-## License
+| Valore | Intestazione |
+| -------------- | -------------- |
+| new     |Nuovo     |
+| approved     | Approvato     |
+| denied     | Rifiutato     |
+| perma     | PermaDeath o PermaJail     |
+| other     | Wipati     |
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+<div style="padding-left:10%"></div>
+
+| Valore | Intestazione |
+| -------------- | -------------- |
+| staff     |Permesso per valutare i background     |
+| approved     | Permesso per modificare i background     |
+| denied     | Permesso per registrare altri staffer     |
+</div>
+
+---
+
+## Installazione
+
+1. Clona questo repository sul tuo computer o scaricalo come file ZIP.
+
+2. Apri il terminale nella cartella del progetto e installa le dipendenze utilizzando il comando:
+
+   ```bash
+   composer install
+   ```
+
+3. Copia il file `.env.example` e rinominalo in `.env`. Assicurati di configurare correttamente le variabili d'ambiente nel file `.env`, come la connessione al database.
+
+4. Genera una chiave di applicazione univoca eseguendo il comando:
+
+   ```bash
+   php artisan key:generate
+   ```
+
+5. Esegui le migrazioni del database con il comando:
+
+   ```bash
+   php artisan migrate
+   ```
+
+6. Avvia il server di sviluppo locale eseguendo il comando:
+
+   ```bash
+   php artisan serve
+   ```
+
+7. Visita il tuo sito all'indirizzo `http://localhost:8000` nel tuo browser.
+
+---
+
+## Contatti
+
+Per ulteriori informazioni o supporto, contatta il nostro team di supporto all'indirizzo support@busipage.it
+
+*Sito web: [www.busipage.it](https://busipage.it)*

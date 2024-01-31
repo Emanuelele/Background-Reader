@@ -1,3 +1,8 @@
+/**
+ * Generates HTML code for a set of buttons with different actions.
+ *
+ * @returns {string} HTML code for buttons
+ */
 const allButtons = `
     <button onclick=\"updatestatus(this, 'approved')\" type=\"button\" class=\"btn btn-primary btn-rounded btn-icon\"><i class=\"material-icons\">done</i></button>
     <button onclick=\"updatestatus(this, 'denied')\" type=\"button\" class=\"btn btn-warning btn-rounded btn-icon\"><i class=\"material-icons\">close</i></button>
@@ -6,6 +11,12 @@ const allButtons = `
     <button onclick=\"info(this)\" type=\"button\" class=\"btn btn-info btn-rounded btn-icon\"><i class=\"material-icons\">info</i></button>
 `;
 
+/**
+ * Generates HTML code for edit buttons based on original data.
+ *
+ * @param {Array} originalData - Array of original data for the record
+ * @returns {string} HTML code for edit buttons
+ */
 const editButtons = (originalData) => {
     return `
         <button type="button" class="btn btn-success btn-rounded btn-icon" onclick="save(this, [${originalData.map(data => `'${data}'`).join(', ')}])"><i class="material-icons">save</i></button>
@@ -13,15 +24,33 @@ const editButtons = (originalData) => {
     `;
 }
 
+/**
+ * Generates HTML code for finish buttons.
+ *
+ * @returns {string} HTML code for finish buttons
+ */
 const finishButtons = `
     <button onclick=\"window.location.href='${dashboardUrl}'\" type=\"button\" class=\"btn btn-info btn-rounded btn-icon\"><i class=\"material-icons\">undo</i></button>
     <button onclick=\"window.location.href='${backgroundReadUrl}'\" type=\"button\" class=\"btn btn-primary btn-rounded btn-icon\"><i class=\"material-icons\">skip_next</i></button>
 `;
 
+/**
+ * Generates HTML code for a dashboard button.
+ *
+ * @returns {string} HTML code for dashboard button
+ */
 const dashboardButton = `
     <button onclick=\"window.location.href='${dashboardUrl}'\" type=\"button\" class=\"btn btn-info btn-rounded btn-icon\"><i class=\"material-icons\">undo</i></button>
 `;
 
+/**
+ * Sends an HTTP request with optional parameters.
+ *
+ * @param {string} url - The URL for the request
+ * @param {Object} params - Optional parameters for the request
+ * @param {string} method - HTTP method (GET, POST, PATCH, DELETE)
+ * @returns {Promise} A promise that resolves with the response or rejects with an error
+ */
 function request(url, params, method) {
     return new Promise((resolve, reject) => {
         if(params){
@@ -69,6 +98,11 @@ function request(url, params, method) {
     });
 }
 
+/**
+ * Deletes a background record after confirming with the user.
+ *
+ * @param {HTMLElement} element - The button element triggering the action
+ */
 const cancel = async (element) => {
     if (confirm("Sei sicuro di voler procedere?")) {
         const response = await request(backgroundDeleteUrl, { background_id: element.parentNode.parentNode.dataset.backgroundid }, "DELETE");
@@ -76,21 +110,38 @@ const cancel = async (element) => {
     }
 }
 
+/**
+ * Switches a record into edit mode, allowing modifications.
+ *
+ * @param {HTMLElement} element - The button element triggering the action
+ */
 const edit = (element) => {
     const cell = element.closest('td');
     const row = cell.closest('tr');
     const originalData = [];
-    for (let i = 0; i < row.cells.length; i++) originalData.push(row.cells[i].innerText);
+    for (let i = 0; i < row.cells.length; i++) if(i == 2) originalData.push(row.cells[i].querySelector('a').getAttribute('href')); else originalData.push(row.cells[i].innerText);
     cell.innerHTML = editButtons(originalData);
     for (let i = 0; i < row.cells.length - 1; i++) row.cells[i].innerHTML = `<input type="text" class="form-control" value="${originalData[i]}">`;
 }
 
+/**
+ * Reverts the modifications made during edit mode.
+ *
+ * @param {HTMLElement} element - The button element triggering the action
+ * @param {Array} originalData - Original data of the record
+ */
 const undo = (element, originalData) => {
     const cells = element.closest('tr').cells;
     cells[cells.length - 1].innerHTML = allButtons;
-    for (let i = 0; i < cells.length - 1; i++) if(i == 3) cells[i].innerHTML = '<label class="badge badge-'+originalData[i]+'"style="width: 40%">'+originalData[i]+'</label>'; else cells[i].innerText = originalData[i];
+    for (let i = 0; i < cells.length - 1; i++) if(i == 3) cells[i].innerHTML = '<label class="badge badge-'+originalData[i]+'"style="width: 40%">'+originalData[i]+'</label>'; else if(i == 2) cells[i].innerHTML = '<a href="'+ originalData[i] +'" target="_blank"><code>Link</code>'; else cells[i].innerText = originalData[i];
 }
 
+/**
+ * Saves the modifications made during edit mode.
+ *
+ * @param {HTMLElement} element - The button element triggering the action
+ * @param {Array} originalData - Original data of the record
+ */
 const save = async (element, originalData) => {
     const cells = element.closest('tr').cells;
     const newData = [];
@@ -98,10 +149,16 @@ const save = async (element, originalData) => {
     const response = await request(backgroundUpdateUrl, { background_id: element.parentNode.parentNode.dataset.backgroundid, discord_id: newData[0], generality: newData[1], link: newData[2], type: newData[3] }, "PATCH");
     if(response.success){
         cells[cells.length - 1].innerHTML = allButtons;
-        for (let i = 0; i < cells.length - 1; i++) if(i == 3) cells[i].innerHTML = '<label class="badge badge-'+newData[i]+'"style="width: 40%">'+newData[i]+'</label>'; else cells[i].innerText = newData[i];
+        for (let i = 0; i < cells.length - 1; i++) if(i == 3) cells[i].innerHTML = '<label class="badge badge-'+newData[i]+'"style="width: 40%">'+newData[i]+'</label>'; else if(i == 2) cells[i].innerHTML = '<a href="'+ newData[i] +'" target="_blank"><code>Link</code>'; else cells[i].innerText = newData[i];
     } else undo(element, originalData);
 }
 
+/**
+ * Updates the status of a background record and performs related actions.
+ *
+ * @param {HTMLElement} element - The button element triggering the action
+ * @param {string} newStatus - The new status for the background record
+ */
 const updatestatus = async (element, newStatus) => {
     const row = element.closest('tr');
     const cells = row.cells;
@@ -120,6 +177,11 @@ const updatestatus = async (element, newStatus) => {
     }
 }
 
+/**
+ * Updates statistics related to background records.
+ *
+ * @param {HTMLElement} element - The button element triggering the action
+ */
 const updatestats = async (element) => {
     const response = await request(backgroundInfoUrl, { background_id:  element.parentNode.parentNode.dataset.backgroundid}, "POST");
     setElementText('bgcount_presentati', (response.success && response.data.new) ? response.data.new : "0");
@@ -127,6 +189,10 @@ const updatestats = async (element) => {
     setElementText('bgcount_rifiutati', (response.success && response.data.denied) ? response.data.denied : "0");
 }
 
+/**
+ * Initializes event listeners after the DOM has loaded.
+ * Search in table system.
+ */
 document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById('searchbar');
     if(document.getElementById('SearchableTable')){
@@ -148,18 +214,41 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
+/**
+ * Sets the inner text of an HTML element.
+ *
+ * @param {string} elementId - The ID of the target HTML element
+ * @param {string} newText - The new text to set
+ */
 const setElementText = (elementId, newText) => {
     document.getElementById(elementId).innerText = newText;
 }
 
+/**
+ * Sets the CSS class of an HTML element.
+ *
+ * @param {string} elementId - The ID of the target HTML element
+ * @param {string} newClass - The new CSS class to set
+ */
 const setElementClass = (elementId, newClass) => {
     document.getElementById(elementId).className = newClass;
 }
 
+/**
+ * Sets the inner HTML of an HTML element.
+ *
+ * @param {string} elementId - The ID of the target HTML element
+ * @param {string} newHtml - The new HTML code to set
+ */
 const setElementHtml = (elementId, newHtml) => {
     document.getElementById(elementId).innerHTML = newHtml;
 }
 
+/**
+ * redirect to another page to display detailed information about a background record.
+ *
+ * @param {HTMLElement} element - The button element triggering the action
+ */
 const info = (element) => {
     const form = document.createElement('form');
     form.method = 'POST';
@@ -181,26 +270,14 @@ const info = (element) => {
     document.body.appendChild(form);
     
     form.submit();
-    /*const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = "http://localhost:8000/api/verifybackground";
-    
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = 'google_doc_link';
-    input.value = "https://docs.google.com/document/d/1KAAHjuReHPdPNEYgvnFqHxptpyseVgZNiaqAXMGsOlk/edit#heading=h.nawpjre40we5";
-
-    const input2 = document.createElement('input');
-    input2.type = 'hidden';
-    input2.name = 'discord_id';
-    input2.value = "651360942440972288";
-
-    form.appendChild(input);
-    form.appendChild(input2);
-    document.body.appendChild(form);
-    form.submit();*/
 }
 
+/**
+ * Displays a toast notification with a message.
+ *
+ * @param {string} message - The message to display in the toast
+ * @param {boolean} error - Indicates if it's an error toast
+ */
 showToast = (message, error) => {
     Toastify({
         text: message,
@@ -211,6 +288,9 @@ showToast = (message, error) => {
     }).showToast();
 }
 
+/**
+ * Loads and displays statistics for the dashboard after the DOM has loaded.
+ */
 document.addEventListener('DOMContentLoaded', async function () {
     if(window.location.href == dashboardUrl) {
         const response = await request(backgroundDashboardStatsUrl, null, "GET");

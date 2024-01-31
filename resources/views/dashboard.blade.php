@@ -36,7 +36,7 @@
                   </div>
                 </div>
               </div>
-              <h6 class="text-muted font-weight-normal">Nuovi Whitelistati</h6>
+              <h6 class="text-muted font-weight-normal">Utenti Whitelistati</h6> <!-- TO-DO -->
             </div>
           </div>
         </div>
@@ -76,7 +76,7 @@
                   </div>
                 </div>
               </div>
-              <h6 class="text-muted font-weight-normal">Whitelist rimandate</h6>
+              <h6 class="text-muted font-weight-normal">Whitelist rimandate</h6> <!-- TO-DO -->
             </div>
           </div>
         </div>
@@ -121,7 +121,7 @@
         <div class="col-sm-4 grid-margin">
           <div class="card">
             <div class="card-body">
-              <h5>Colloqui effettuati</h5>
+              <h5>Background rifiutati</h5>
               <div class="row">
                 <div class="col-8 col-sm-12 col-xl-8 my-auto">
                   <div class="d-flex d-sm-block d-md-flex align-items-center">
@@ -130,7 +130,7 @@
                   <h6 class="text-muted font-weight-normal" id="whitelistcarriedout">N/D</h6>
                 </div>
                 <div class="col-4 col-sm-12 col-xl-4 text-center text-xl-right">
-                  <i class="icon-lg mdi mdi-calendar text-danger ml-auto"></i>
+                  <i class="icon-lg mdi mdi-close text-danger ml-auto"></i>
                 </div>
               </div>
             </div>
@@ -139,7 +139,7 @@
         <div class="col-sm-4 grid-margin">
           <div class="card">
             <div class="card-body">
-              <h5>Utenti whitelistati</h5>
+              <h5>Background approvati</h5>
               <div class="row">
                 <div class="col-8 col-sm-12 col-xl-8 my-auto">
                   <div class="d-flex d-sm-block d-md-flex align-items-center">
@@ -148,7 +148,7 @@
                   <h6 class="text-muted font-weight-normal" id="userswhitelistedperc">N/D</h6>
                 </div>
                 <div class="col-4 col-sm-12 col-xl-4 text-center text-xl-right">
-                  <i class="icon-lg mdi mdi-monitor text-success ml-auto"></i>
+                  <i class="icon-lg mdi mdi-check text-success ml-auto"></i>
                 </div>
               </div>
             </div>

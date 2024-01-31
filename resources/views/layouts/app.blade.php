@@ -44,7 +44,7 @@
                             </div>
                             <div class="profile-name">
                                 <h5 class="mb-0 font-weight-normal">{{ Auth::user()->username }}</h5>
-                                <span>Admin</span> <!-- TO-DO -->
+                                <span>{{ Auth::user()->grade }}</span>
                             </div>
                         </div>
                     </li>
@@ -65,18 +65,18 @@
                             <span class="menu-icon">
                                 <i class="mdi mdi-account-card-details"></i>
                             </span>
-                            <span class="menu-title">Gestione bg</span>
+                            <span class="menu-title">Gestione BG</span>
                             <i class="menu-arrow"></i>
                         </a>
                         <div class="collapse" id="ui-basic">
                           <ul class="nav flex-column sub-menu">
-                            <li class="nav-item"> <a class="nav-link" href="{{ route('background.read') }}">Leggi background</a></li>
-                            <li class="nav-item"> <a class="nav-link" href="{{ route('background.getall') }}">Tutti i bg</a></li>
+                            <li class="nav-item"> <a class="nav-link" href="{{ route('background.read') }}">Leggi un background</a></li>
+                            <li class="nav-item"> <a class="nav-link" href="{{ route('background.getall') }}">Tutti i background</a></li>
                           </ul>
                         </div>
                     </li>
                     <div style="margin-top: 5px;"></div>
-                    <li class="nav-item menu-items">
+                    <li class="nav-item menu-items" style="display:none;">
                         <a class="nav-link" data-toggle="collapse" href="#auth" aria-expanded="false" aria-controls="auth">
                           <span class="menu-icon">
                             <i class="mdi mdi-security"></i>
@@ -172,5 +172,10 @@
         <script src="{{ asset('assets/js/dashboard.js') }}"></script>
         <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
         <script src="{{ asset('assets/js/main.js') }}"></script>
+        @if ($errors->any())
+            @foreach ($errors->all() as $error)
+                <script> showToast('{{ $error }}', true); </script>
+            @endforeach
+        @endif
       </body>
 </html>

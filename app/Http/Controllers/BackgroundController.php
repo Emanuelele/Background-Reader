@@ -95,7 +95,6 @@ class BackgroundController extends Controller {
             $background = Background::find($Request->background_id);
             if ($background) {
                 $data = $Request->validate(Background::$rules);
-                $data['link'] = $background->link;
                 $background->update($data);
                 DB::commit();
                 return response()->json(['success' => 'Background modificato con successo'], 200);
@@ -200,13 +199,10 @@ class BackgroundController extends Controller {
      *
      * @return View
      */
-    public function readBackground(): View {
+    public function readBackground(): View | RedirectResponse {
         $background =  Background::where('type', 'new')->orderBy('created_at', 'asc')->first();
-        $backgrounds =  Background::where('discord_id', $background->discord_id)->orderBy('created_at', 'asc');
-        if(!$background) return view('readbackground', [
-            'oldestNewBackground' => null,
-            'additionalInfo' => null,
-        ]);
+        if(!$background) return redirect()->route('dashboard')->withErrors("Non ci sono background da leggere");
+        $backgrounds =  Background::where('discord_id', $background->discord_id)->whereNotIn('id', [$background->id])->orderBy('created_at', 'asc')->get();
         $additionalInfo = $this->getDiscordUserInfo($background->id);
         return view('readbackground', [
             'background' => $background,
@@ -224,7 +220,7 @@ class BackgroundController extends Controller {
      */
     public function backgroundMoreInfo(Request $Request): View {
         $background =  Background::find($Request->background_id);
-        $backgrounds =  Background::where('discord_id', $background->discord_id)->orderBy('created_at', 'asc');
+        $backgrounds =  Background::where('discord_id', $background->discord_id)->whereNotIn('id', [$background->id])->orderBy('created_at', 'asc')->get();
         if(!$background) return view('readbackground', [
             'oldestNewBackground' => null,
             'additionalInfo' => null,
@@ -261,6 +257,7 @@ class BackgroundController extends Controller {
             else $message = '<@'.$background->discord_id.'> Background NON approvato! Note:"'.$background->note.'". By <@'.Auth::user()->id.'>';
             $this->sendDiscordWebhook($message);
             $background->reader = Auth::user()->id;
+            $background->save();
             return response()->json(['success' => 'Background approvato con successo'], 200);
         } catch(Exception $e) {
             return response()->json(['error' => 'Errore nel server'.$e], 500);
@@ -311,6 +308,7 @@ class BackgroundController extends Controller {
     public function saveBackground(Request $Request): JsonResponse {
         try {
             $background = Background::find($Request->background_id);
+            if(str_starts_with($background->link, "pdf_")) return response()->json(['success' => 'Documento già salvato in database']);
             $apiKey = env('GOOGLE_API_KEY');
             $fileId = $this->extractFileIdFromLink($background->link);
             $exportUrl = "https://www.googleapis.com/drive/v3/files/{$fileId}/export?key={$apiKey}&mimeType=application/pdf";
@@ -321,21 +319,21 @@ class BackgroundController extends Controller {
                 file_put_contents($pdfPath, $response->body());
                 $background->link = $pdfFileName;
                 $background->update();
-                return response()->json(['success' => 'Download e salvataggio completati con successo', 'pdf_path' => $pdfPath]);
+                return response()->json(['success' => 'Download e salvataggio completati con successo']);
             } else {
-                return response()->json(['error' => 'Errore nella richiesta al server Google'], $response->status());
+                return response()->json(['error' => 'Errore nella richiesta al server Google'], 500);
             }
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Errore durante la richiesta al server Google: ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'Errore durante la richiesta al server Google: '], 500);
         }
     }
 
     /**
      * Get dashboard statistics for the authenticated user.
      *
-     * @return array
+     * @return JsonResponse
      */
-    public function getDahboardStats() {
+    public function getDahboardStats(): JsonResponse {
         $user = Auth::user();
         $newBackgroundsCount = Background::whereBetween('created_at', [now()->subDays(7), now()])->count();
         $deniedBackgroundsCount = Background::where('type', 'denied')
@@ -386,7 +384,7 @@ class BackgroundController extends Controller {
      * @param \Illuminate\Http\Request $Request The incoming HTTP request.
      * @return \Illuminate\Http\JsonResponse A JSON response indicating the success or error of the operation.
      */
-    public function newBackgroundApi(Request $Request) {
+    public function newBackgroundApi(Request $Request): JsonResponse {
         try {
             $validator = Validator::make($Request->all(), [
                 'google_doc_link' => 'required|url',
@@ -407,7 +405,7 @@ class BackgroundController extends Controller {
             $background->save();
             DB::commit();
             return response()->json(['success' => 'Verifica e registrazione bg completati con successo'], 200);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             return response()->json(['error' => 'Errore durante la verifica del background: ' . $e->getMessage()], 500);
         }

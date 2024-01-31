@@ -147,8 +147,13 @@
                     <th style="width: 20%">Generalità</th>
                     <th style="width: 20%">Link</th>
                     <th style="width: 20%">Status</th>
-                    <th style="width: 20%">Data</th>
-                    <th style="width: 20%">Actions</th>
+                    @if(request()->route()->uri == "showmoreinfo")
+                      <th style="width: 20%">Note</th>
+                    @endif
+                    @if(request()->route()->uri != "showmoreinfo")
+                      <th style="width: 20%">Data</th>
+                    @endif
+                    <th style="min-width: 20%">Actions</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -157,7 +162,12 @@
                     <td style="width: 20%">{{ $background->generality }}</td>
                     <td style="width: 20%"><a href="{{ $background->link }}" target="_blank"><code>Link</code></td>
                     <td style="width: 20%"><label class="badge badge-{{ $background->type }}" style="width: 40%">{{ $background->type }}</label></td>
-                    <td style="width: 20%">{{ $background->created_at }}</label></td>
+                    @if(request()->route()->uri == "showmoreinfo")
+                      <td style="width: 20%; white-space: pre-wrap;">{{ $background->note }}</td>
+                    @endif
+                    @if(request()->route()->uri != "showmoreinfo")
+                      <td style="width: 20%">{{ $background->created_at }}</td>
+                    @endif
                     <td style="width: 20%" id="buttonsgroup">
                       @php echo($buttons) @endphp
                     </td>
@@ -167,10 +177,10 @@
             </div>
         </div>
     </div>
-    @if(is_null($backgrounds))
+    @if(!is_null($backgrounds))
         <div class="card">
             <div class="card-body">
-            <h4 class="card-title"> Altri background di {{ $additionalInfo['username'] }} / {{ $additionalInfo['global_name'] }}</h4>
+            <h4 class="card-title"> Altri background presentati precedentemente</h4>
             <br>
             <div class="table-responsive">
                 <table class="table" id="SearchableTable">
@@ -180,6 +190,7 @@
                         <th style="width: 20%">Generalità</th>
                         <th style="width: 20%">Link</th>
                         <th style="width: 20%">Status</th>
+                        <th style="width: 20%">Note</th>
                         <th style="width: 20%">Data</th>
                     </tr>
                 </thead>
@@ -190,7 +201,8 @@
                         <td style="width: 20%">{{ $background->generality }}</td>
                         <td style="width: 20%"><a href="{{ $background->link }}" target="_blank"><code>Link</code></td>
                         <td style="width: 20%"><label class="badge badge-{{ $background->type }}" style="width: 40%">{{ $background->type }}</label></td>
-                        <td style="width: 20%">{{ $background->created_at }}</label></td>
+                        <td style="width: 20%; white-space: pre-wrap;">{{ $background->note }}</td>
+                        <td style="width: 20%">{{ $background->created_at }}</td>
                     </tr>
                     @endforeach
                 </tbody>
