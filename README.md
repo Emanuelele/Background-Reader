@@ -48,13 +48,8 @@ NB: I permessi di accesso e modifica degli staffer sono gestiti tramite bot Disc
 
 ## Specifiche sulle tipologie di dati
 
-<div style="display: flex; padding-bottom: 2%; padding-left: 5%">
-Lista status di un background:
-<div style="padding-left:30%"></div>
-Lista permessi staffer
-</div>
 
-<div style="display: flex">
+Lista status di un background:
 
 | Valore | Intestazione |
 | -------------- | -------------- |
@@ -64,14 +59,14 @@ Lista permessi staffer
 | perma     | PermaDeath o PermaJail     |
 | other     | Wipati     |
 
-<div style="padding-left:10%"></div>
+Lista permessi staffer:
 
 | Valore | Intestazione |
 | -------------- | -------------- |
 | staff     |Permesso per valutare i background     |
 | approved     | Permesso per modificare i background     |
 | denied     | Permesso per registrare altri staffer     |
-</div>
+
 
 ---
 
