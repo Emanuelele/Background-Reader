@@ -45,6 +45,7 @@
           </div>
         </div>
     </div>
+    
     <div class="row">
         <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
           <div class="card">
@@ -52,7 +53,7 @@
               <div class="row">
                 <div class="col-9">
                   <div class="d-flex align-items-center align-self-start">
-                    <h3 class="mb-0">{{ $additionalInfo['new'] }}</h3>
+                    <h3 class="mb-0" id="bgcount_presentati">{{ $additionalInfo['new'] }}</h3>
                     <p class="text-success ml-2 mb-0 font-weight-medium"></p>
                   </div>
                 </div>
@@ -72,7 +73,7 @@
               <div class="row">
                 <div class="col-9">
                   <div class="d-flex align-items-center align-self-start">
-                    <h3 class="mb-0">{{ $additionalInfo['denied'] }}</h3>
+                    <h3 class="mb-0" id="bgcount_rifiutati">{{ $additionalInfo['denied'] }}</h3>
                     <p class="text-success ml-2 mb-0 font-weight-medium"></p>
                   </div>
                 </div>
@@ -92,7 +93,7 @@
               <div class="row">
                 <div class="col-9">
                   <div class="d-flex align-items-center align-self-start">
-                    <h3 class="mb-0">{{ $additionalInfo['approved'] }}</h3>
+                    <h3 class="mb-0" id="bgcount_approvati">{{ $additionalInfo['approved'] }}</h3>
                     <p class="text-danger ml-2 mb-0 font-weight-medium"></p>
                   </div>
                 </div>
@@ -112,13 +113,13 @@
                 <div class="row">
                   <div class="col-9">
                     <div class="d-flex align-items-center align-self-start">
-                      <h3 class="mb-0">NO</h3> <!-- TO-DO -->
+                      <h3 class="mb-0" id="useriswhitelisted">NO</h3> <!-- TO-DO -->
                       <p class="text-success ml-2 mb-0 font-weight-medium"></p>
                     </div>
                   </div>
                   <div class="col-3">
-                    <div class="icon icon-box-danger">
-                      <i class="material-icons">close</i> <!-- TO-DO -->
+                    <div class="icon icon-box-danger" id="useriswhitelistediconbg">
+                      <i class="material-icons" id="useriswhitelistedicon">close</i> <!-- TO-DO -->
                     </div>
                   </div>
                 </div>
@@ -132,8 +133,9 @@
             <h4 class="card-title">background presentato</h4>
             <br>
             <div class="table-responsive">
-            @php
-                $buttons = "
+            @php 
+              if(request()->route()->uri == "showmoreinfo") $buttons = "<button onclick=\"window.history.back()\" type=\"button\" class=\"btn btn-info btn-rounded btn-icon\"><i class=\"material-icons\">undo</i></button>";
+              else $buttons = "
                 <button onclick=\"updatestatus(this, 'approved')\" type=\"button\" class=\"btn btn-primary btn-rounded btn-icon\"><i class=\"material-icons\">done</i></button>
                 <button onclick=\"updatestatus(this, 'denied')\" type=\"button\" class=\"btn btn-warning btn-rounded btn-icon\"><i class=\"material-icons\">close</i></button>
             ";
@@ -156,8 +158,8 @@
                     <td style="width: 20%"><a href="{{ $background->link }}" target="_blank"><code>Link</code></td>
                     <td style="width: 20%"><label class="badge badge-{{ $background->type }}" style="width: 40%">{{ $background->type }}</label></td>
                     <td style="width: 20%">{{ $background->created_at }}</label></td>
-                    <td style="width: 20%">
-                    @php echo($buttons) @endphp
+                    <td style="width: 20%" id="buttonsgroup">
+                      @php echo($buttons) @endphp
                     </td>
                 </tr>
                 </tbody>
@@ -197,22 +199,4 @@
             </div>
         </div>
     @endif
-    <!-- more info popup -->
-    <div id="moreinfo" class="moreinfo card">
-        <i id="closebtn" class="close fa-solid fa-xmark"></i>
-        <div class="card-body">
-            <h4 class="card-title">Informazioni utente</h4>
-            <div class="table-responsive">
-            <table class="table">
-                <tbody>
-                <tr><td>Discord Username</td><td>=></td><td id="discord_username"></td></tr>
-                <tr><td>Discord Global Name</td><td>=></td><td id="discord_globalname"></td></tr>
-                <tr><td>Background presentati</td><td>=></td><td id="bgcount_presentati"></td></tr>
-                <tr><td>Background approvati</td><td>=></td><td id="bgcount_approvati"></td></tr>
-                <tr><td>Background rifiutati</td><td>=></td><td id="bgcount_rifiutati"></td></tr>
-                </tbody>
-            </table>
-            </div>
-        </div>
-    </div>
 </x-app-layout>

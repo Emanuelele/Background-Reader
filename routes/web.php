@@ -5,7 +5,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DiscordLogin;
 use App\Http\Controllers\BackgroundController;
 use Illuminate\Support\Facades\Route;
-
+use Illuminate\Support\Facades\View;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -25,12 +25,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
+    Route::get('dashboardstats', [BackgroundController::class, 'getDahboardStats'])->name('dashboard.stats');
     Route::get('backgroundget/{type}', [BackgroundController::class, 'getBackgroundFromType'])->name('background.get');
     Route::get('getbackground', [BackgroundController::class, 'getAllBackground'])->name('background.getall');
     Route::get('readbackground', [BackgroundController::class, 'readBackground'])->name('background.read');
-    Route::post('showmoreinfo', [BackgroundController::class, 'getDiscordUserInfo'])->name('background.info');
+    Route::post('showmoreinfo', [BackgroundController::class, 'backgroundMoreInfo'])->name('background.info');
     Route::post('resultBackground', [BackgroundController::class, 'resultBackground'])->name('background.result');
     Route::patch('updatebackground', [BackgroundController::class, 'updateBackground'])->name('background.update');
+    Route::post('downloadbackground', [BackgroundController::class, 'saveBackground'])->name('background.save');
+    Route::get('background/{filename}', function ($filename) {
+        return view('readbackgroundfile', ['filename' => $filename]);
+    })->name('background.view');
 });
 
 Route::middleware('auth', 'admin')->group(function () {

@@ -6,6 +6,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>{{ config('app.name', 'Laravel') }}</title>
         <!-- main style -->
+        
         <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
         <link rel="stylesheet" href="{{ asset('assets/css/main.css') }}">
         <!-- notify -->
@@ -13,8 +14,20 @@
         <!-- icons and fonts -->
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <link rel="stylesheet" href="{{ asset('assets/vendors/mdi/css/materialdesignicons.min.css') }}">
+        
     </head>
     <body>
+        <script>
+            const backgroundDeleteUrl = "{{ route('background.delete') }}";
+            const backgroundUpdateUrl = "{{ route('background.update') }}";
+            const backgroundInfoUrl = "{{ route('background.info') }}";
+            const backgroundResultUrl = "{{ route('background.result') }}";
+            const backgroundReadUrl = "{{ route('background.read') }}";
+            const backgroundDownloadUrl = "{{ route('background.save') }}";
+            const backgroundDashboardStatsUrl = "{{ route('dashboard.stats') }}";
+            const dashboardUrl = "{{ route('dashboard') }}";
+            const csrfToken = "{{ csrf_token() }}";
+        </script>
         <div class="container-scroller">
             <nav class="sidebar sidebar-offcanvas" id="sidebar">
                 <div class="sidebar-brand-wrapper d-none d-lg-flex align-items-center justify-content-center fixed-top">
@@ -57,12 +70,7 @@
                         </a>
                         <div class="collapse" id="ui-basic">
                           <ul class="nav flex-column sub-menu">
-                            <li class="nav-item"> <a class="nav-link" href="{{ route('background.get', ['type' => 'new']) }}">Nuovi Background</a></li>
-                            <li class="nav-item"> <a class="nav-link" href="{{ route('background.get', ['type' => 'denied']) }}">Background rifiutati</a></li>
-                            <li class="nav-item"> <a class="nav-link" href="{{ route('background.get', ['type' => 'approved']) }}">Background approvati</a></li>
-                            <li class="nav-item"> <a class="nav-link" href="{{ route('background.get', ['type' => 'approved']) }}">Background giocanti</a></li>
-                            <li class="nav-item"> <a class="nav-link" href="{{ route('background.get', ['type' => 'perma']) }}">Background perma</a></li>
-                            <li class="nav-item"> <a class="nav-link" href="{{ route('background.get', ['type' => 'other']) }}">Bg in pausa/wiped</a></li>
+                            <li class="nav-item"> <a class="nav-link" href="{{ route('background.read') }}">Leggi background</a></li>
                             <li class="nav-item"> <a class="nav-link" href="{{ route('background.getall') }}">Tutti i bg</a></li>
                           </ul>
                         </div>
@@ -97,9 +105,9 @@
                         <span class="mdi mdi-menu"></span>
                     </button>
                     <ul class="navbar-nav w-100">
-                        <li class="nav-item w-100" style="padding-right: 70%">
+                        <li class="nav-item w-100">
                             <form class="nav-link mt-2 mt-md-0 d-none d-lg-flex search">
-                                <input id ="searchbar" type="text" class="form-control" placeholder="Search">
+                                <input id ="searchbar" type="text" class="form-control" placeholder="Search"  style="width: 30%">
                             </form>
                         </li>
                     </ul>
@@ -162,13 +170,7 @@
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
         <!-- main js -->
         <script src="{{ asset('assets/js/dashboard.js') }}"></script>
-        <script>
-            const backgroundDeleteUrl = "{{ route('background.delete') }}";
-            const backgroundUpdateUrl = "{{ route('background.update') }}";
-            const backgroundInfoUrl = "{{ route('background.info') }}";
-            const backgroundResultUrl = "{{ route('background.result') }}";
-            const csrfToken = "{{ csrf_token() }}";
-        </script>
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
         <script src="{{ asset('assets/js/main.js') }}"></script>
       </body>
 </html>

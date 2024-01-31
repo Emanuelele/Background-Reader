@@ -16,13 +16,13 @@ class IpFilterMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $allowedIps = Config::get('ip-filter.allowed_ips');
+        $allowedIps = Config::get('ipfilter.allowed_ips');
         $requestIp = $request->ip();
 
         if (in_array($requestIp, $allowedIps)) {
             return $next($request);
         }
 
-        return abort(403, 'Unauthorized IP address.');
+        return abort(403, "'Unauthorized IP address.'");
     }
 }

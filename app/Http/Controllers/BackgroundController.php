@@ -10,9 +10,16 @@ use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
+use GuzzleHttp\Client;
+use Barryvdh\DomPDF\PDF;
+use Dompdf\Dompdf;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Validator;
 
 class BackgroundController extends Controller {
-    
+    /** BACKGROUND METHODS **/
     /**
      * Create a new Background record based on the provided Request data.
      *
@@ -38,9 +45,9 @@ class BackgroundController extends Controller {
      * @param string $type
      * @return View
      */
-    public function getBackgroundFromType(string $type): View{
+    public function getBackgroundFromType(string $type): View {
         $backgrounds = Background::where('type', $type)->get();
-        return view('backgrounds', ['backgrounds' => $backgrounds, 'navVisualBackgroundType' => $type]);
+        return view('backgrounds', ['backgrounds' => $backgrounds]);
     }
 
     /**
@@ -59,7 +66,7 @@ class BackgroundController extends Controller {
      * @param Request $request
      * @return JsonResponse
      */
-    public function deleteBackground(Request $Request) {
+    public function deleteBackground(Request $Request): JsonResponse {
         try {
             DB::beginTransaction();
             $background = Background::find($Request->background_id);
@@ -88,6 +95,7 @@ class BackgroundController extends Controller {
             $background = Background::find($Request->background_id);
             if ($background) {
                 $data = $Request->validate(Background::$rules);
+                $data['link'] = $background->link;
                 $background->update($data);
                 DB::commit();
                 return response()->json(['success' => 'Background modificato con successo'], 200);
@@ -99,6 +107,8 @@ class BackgroundController extends Controller {
             return response()->json(['error' => 'Errore nella modifica del Background, riprova più tardi'], 500);
         }
     }
+
+    /** DISCORD METHODS **/
 
     /**
      * Make a cURL request to the Discord API with the provided Discord ID.
@@ -139,36 +149,28 @@ class BackgroundController extends Controller {
      * Get Discord user information based on the provided Discord ID.
      *
      * @param string $discordId
-     * @return JsonResponse
-     */
-    public function getDiscordUserInfo(Request $Request): JsonResponse {
-        $data = array_merge($this->makeDiscordApiRequest($Request->discord_id), $this->backgroundCountFromDiscordUserId($Request->discord_id));
-        return response()->json(['success' => 'Informazioni caricate', 'data' => $data], 200);
-    }
-
-    /**
-     * Get Discord user information based on the provided Discord ID.
-     *
-     * @param string $discordId
      * @return array
      */
-    private function getDiscordUserInfoPv(string $discordId): array {
-        return array_merge($this->makeDiscordApiRequest($discordId), $this->backgroundCountFromDiscordUserId($discordId));
+    private function getDiscordUserInfo(string $background_id): array {
+        $background = Background::find($background_id);
+        return array_merge($this->makeDiscordApiRequest($background->discord_id), $this->backgroundInfoFromDiscordUserId($background_id));
     }
 
     /**
      * Get background counts based on Discord user ID.
      *
-     * @param string $discord_id
+     * @param string $background_id
      * @return array
      */
-    private function backgroundCountFromDiscordUserId(string $discord_id): array {
+    private function backgroundInfoFromDiscordUserId(string $background_id): array {
+        $background = Background::find($background_id);
         return [
-            'isWhitelisted' => $this->isDiscorduserWhitelisted($discord_id),
-            'isBanned' => $this->isDiscorduserBanned($discord_id),
-            'new' => DB::table('backgrounds')->where('discord_id', $discord_id)->count(),
-            'approved' => DB::table('backgrounds')->where('type', 'approved')->where('discord_id', $discord_id)->count(),
-            'denied' => DB::table('backgrounds')->where('type', 'denied')->where('discord_id', $discord_id)->count(),
+            'isWhitelisted' => $this->isDiscorduserWhitelisted($background->discord_id),
+            'isBanned' => $this->isDiscorduserBanned($background->discord_id),
+            'new' => DB::table('backgrounds')->where('discord_id', $background->discord_id)->count(),
+            'approved' => DB::table('backgrounds')->where('type', 'approved')->where('discord_id', $background->discord_id)->count(),
+            'denied' => DB::table('backgrounds')->where('type', 'denied')->where('discord_id', $background->discord_id)->count(),
+            'note' => DB::table('backgrounds')->where('id', $background_id)->value('note'),
         ];
     }
 
@@ -192,6 +194,7 @@ class BackgroundController extends Controller {
         return false; //to-do
     }
 
+    /** ACTIONS METHODS **/
     /**
      * Read the oldest new background and retrieve additional information.
      *
@@ -204,7 +207,7 @@ class BackgroundController extends Controller {
             'oldestNewBackground' => null,
             'additionalInfo' => null,
         ]);
-        $additionalInfo = $this->getDiscordUserInfoPv($background->discord_id);
+        $additionalInfo = $this->getDiscordUserInfo($background->id);
         return view('readbackground', [
             'background' => $background,
             'backgrounds' => $backgrounds,
@@ -213,25 +216,200 @@ class BackgroundController extends Controller {
         ]);
     }
 
-    public function sendDiscordWebhook($message, $type): void {
-        if($type == "approved") $webhookUrl = 'https://discord.com/api/webhooks/1201365218371063878/jQiMRIk1hGJ5JkjrS2rdk0TgyFk1DyCvKk3jcLX08ZTZmKGTY9yibAM_HL-YzAN-X76d';
-        else $webhookUrl = 'https://discord.com/api/webhooks/1201367735997841500/Fn1332abNEAlarsojxIHdoKIsBeu-yaMHuqRNMxzV-ywix8FO2aHIwCyrm3Bat0afUAc';
+    /**
+     * Display additional information about a specific background.
+     *
+     * @param \Illuminate\Http\Request $Request The incoming HTTP request containing the background_id parameter.
+     * @return \Illuminate\View\View The view displaying additional information about the background.
+     */
+    public function backgroundMoreInfo(Request $Request): View {
+        $background =  Background::find($Request->background_id);
+        $backgrounds =  Background::where('discord_id', $background->discord_id)->orderBy('created_at', 'asc');
+        if(!$background) return view('readbackground', [
+            'oldestNewBackground' => null,
+            'additionalInfo' => null,
+        ]);
+        $additionalInfo = $this->getDiscordUserInfo($background->id);
+        return view('readbackground', [
+            'background' => $background,
+            'backgrounds' => $backgrounds,
+            'additionalInfo' => $additionalInfo,
+            'avatarUrl' => $this->getAvatarUrl($additionalInfo['id'], $additionalInfo['avatar']),
+        ]);
+    }
+
+
+    /** TO-FINISH AND IMPLEMENTING */
+    public function sendDiscordWebhook($message): void {
+        $webhookUrl = 'https://discord.com/api/webhooks/1201704436758753320/G8ppdeMi4V71qmtUC70ONyjL1Ax-t9wnvfd-ZdkhNlAoRQHdMXXIoPrW2TSwJrF9aNqz';
         $response = Http::post($webhookUrl, [
             'content' => $message,
         ]);
     }
-
+    
+    /**
+     * Approve or disapprove a background and send a Discord webhook notification.
+     *
+     * @param \Illuminate\Http\Request $request The incoming HTTP request.
+     * @return \Illuminate\Http\JsonResponse A JSON response indicating the success or error of the operation.
+     */
     public function resultBackground(Request $Request): JsonResponse  {
         try {
             $background = Background::find($Request->background_id);
             if(!$background) return response()->json(['error' => 'Background non trovato'], 400);
             if($Request->result == "approved") $message = '<@'.$background->discord_id.'> Background approvato! Note: "'.$background->note.'". By <@'.Auth::user()->id.'>';
             else $message = '<@'.$background->discord_id.'> Background NON approvato! Note:"'.$background->note.'". By <@'.Auth::user()->id.'>';
-            $this->sendDiscordWebhook($message, $Request->result);
+            $this->sendDiscordWebhook($message);
+            $background->reader = Auth::user()->id;
             return response()->json(['success' => 'Background approvato con successo'], 200);
         } catch(Exception $e) {
             return response()->json(['error' => 'Errore nel server'.$e], 500);
         }
         
+    }
+
+    /**
+     * Extracts the file ID from a Google Docs link.
+     *
+     * @param string $link The link from which to extract the file ID.
+     * @return string|null The file ID, or null if not found.
+     */
+    private function extractFileIdFromLink($link): ?string {
+        preg_match('/\/document\/d\/([^\/]+)\//', $link, $matches);
+        if (isset($matches[1])) return $matches[1];
+        return null;
+    }
+
+    /**
+     * Check if a Google Docs link is accessible and public.
+     *
+     * @param string $link The Google Docs link to check.
+     * @return bool True if the link is accessible and public, false otherwise.
+     */
+    private function isGoogleDocLinkPublic(string $link): bool {
+        try {
+            $apiKey = env('GOOGLE_API_KEY');
+            $fileId = $this->extractFileIdFromLink($link);
+            $exportUrl = "https://www.googleapis.com/drive/v3/files/{$fileId}/export?key={$apiKey}&mimeType=application/pdf";
+            $response = Http::get($exportUrl);
+            if ($response->successful()) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Save a background PDF file from Google Drive to local storage.
+     *
+     * @param \Illuminate\Http\Request $request The incoming HTTP request.
+     * @return \Illuminate\Http\JsonResponse A JSON response indicating the success or error of the operation.
+     */
+    public function saveBackground(Request $Request): JsonResponse {
+        try {
+            $background = Background::find($Request->background_id);
+            $apiKey = env('GOOGLE_API_KEY');
+            $fileId = $this->extractFileIdFromLink($background->link);
+            $exportUrl = "https://www.googleapis.com/drive/v3/files/{$fileId}/export?key={$apiKey}&mimeType=application/pdf";
+            $response = Http::get($exportUrl);
+            if ($response->successful()) {
+                $pdfFileName = 'pdf_' . now()->format('YmdHis') . '.pdf';
+                $pdfPath = public_path('backgrounds' . DIRECTORY_SEPARATOR . $pdfFileName);
+                file_put_contents($pdfPath, $response->body());
+                $background->link = $pdfFileName;
+                $background->update();
+                return response()->json(['success' => 'Download e salvataggio completati con successo', 'pdf_path' => $pdfPath]);
+            } else {
+                return response()->json(['error' => 'Errore nella richiesta al server Google'], $response->status());
+            }
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Errore durante la richiesta al server Google: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get dashboard statistics for the authenticated user.
+     *
+     * @return array
+     */
+    public function getDahboardStats() {
+        $user = Auth::user();
+        $newBackgroundsCount = Background::whereBetween('created_at', [now()->subDays(7), now()])->count();
+        $deniedBackgroundsCount = Background::where('type', 'denied')
+            ->whereBetween('created_at', [now()->subDays(7), now()])
+            ->count();
+        $currentWeekNewBackgroundsCount = Background::whereBetween('created_at', [now()->subDays(14), now()->subDays(7)])->count();
+        $previousWeekNewBackgroundsCount = Background::whereBetween('created_at', [now()->subDays(14), now()->subDays(7)])->count();
+        $percentageChangeNewBackgrounds = ($previousWeekNewBackgroundsCount !== 0)
+            ? (($newBackgroundsCount - $previousWeekNewBackgroundsCount) / $previousWeekNewBackgroundsCount) * 100
+            : $newBackgroundsCount * 100;
+        $currentWeekDeniedBackgroundsCount = Background::where('type', 'denied')
+            ->whereBetween('created_at', [now()->subDays(14), now()->subDays(7)])
+            ->count();
+        $previousWeekDeniedBackgroundsCount = Background::where('type', 'denied')
+            ->whereBetween('created_at', [now()->subDays(21), now()->subDays(14)])
+            ->count();
+        $percentageChangeDeniedBackgrounds = ($previousWeekDeniedBackgroundsCount !== 0)
+            ? (($deniedBackgroundsCount - $previousWeekDeniedBackgroundsCount) / $previousWeekDeniedBackgroundsCount) * 100
+            : $deniedBackgroundsCount * 100;
+        $currentMonthReadCount = Background::where('reader', $user->id)
+            ->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
+            ->count();
+        $previousMonthReadCount = Background::where('reader', $user->id)
+            ->whereBetween('created_at', [now()->subMonth()->startOfMonth(), now()->subMonth()->endOfMonth()])
+            ->count();
+        $percentageChangeReadCount = ($previousMonthReadCount !== 0)
+            ? (($currentMonthReadCount - $previousMonthReadCount) / $previousMonthReadCount) * 100
+            : $currentMonthReadCount * 100;
+        $formatPercentage = function ($percentage) {
+            return ($percentage >= 0) ? "+{$percentage}%" : "{$percentage}%";
+        };
+        $data = [
+            'current_month_read_count' => $currentMonthReadCount,
+            'percentage_change_read_count' => $formatPercentage($percentageChangeReadCount),
+            'new_backgrounds_count' => $newBackgroundsCount,
+            'percentage_change_new_backgrounds' => $formatPercentage($percentageChangeNewBackgrounds),
+            'denied_backgrounds_count' => $deniedBackgroundsCount,
+            'percentage_change_denied_backgrounds' => $formatPercentage($percentageChangeDeniedBackgrounds),
+        ];
+        return response()->json(['success' => 'Statistiche caricate con successo', 'data' => $data]);
+    }
+
+    /** API METHODS **/
+
+    /**
+     * API endpoint to submit a new background request.
+     *
+     * @param \Illuminate\Http\Request $Request The incoming HTTP request.
+     * @return \Illuminate\Http\JsonResponse A JSON response indicating the success or error of the operation.
+     */
+    public function newBackgroundApi(Request $Request) {
+        try {
+            $validator = Validator::make($Request->all(), [
+                'google_doc_link' => 'required|url',
+                'discord_id' => 'required|string',
+            ]);
+            if ($validator->fails()) return response()->json(['error' => 'Bad request', 'details' => $validator->errors()], 400);
+            if (!$this->isGoogleDocLinkPublic($Request->google_doc_link)) return response()->json(['error' => 'Il link del documento Google non è pubblico o è invalido'], 400);
+            $deniedBackgroundsCount = Background::where('type', 'denied')->where('discord_id', $Request->discord_id)->count();
+            $newBackgroundsCount = Background::where('type', 'new')->where('discord_id', $Request->discord_id)->count();
+            if($newBackgroundsCount > 0) return response()->json(['error' => 'Hai già presentato un background: '], 400);
+            if ($deniedBackgroundsCount >= 3) return response()->json(['error' => 'Hai già più di tre background rifiutati'], 400);
+            DB::beginTransaction();
+            $background = new Background();
+            $background->discord_id = $Request->discord_id;
+            $background->type = 'new';
+            $background->link = $Request->google_doc_link;
+            $background->generality = $Request->generality;
+            $background->save();
+            DB::commit();
+            return response()->json(['success' => 'Verifica e registrazione bg completati con successo'], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Errore durante la verifica del background: ' . $e->getMessage()], 500);
+        }
     }
 }

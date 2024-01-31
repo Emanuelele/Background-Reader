@@ -33,9 +33,9 @@ class DiscordLogin extends Controller {
     /**
      * Handle the login process after authentication with Discord.
      *
-     * @return RedirectResponse|Redirector
+     * @return RedirectResponse
      */
-    public function login(): RedirectResponse|Redirector {
+    public function login(): RedirectResponse {
         try {
             $user = Socialite::driver('discord')->stateless()->user();
             $avatarurl = Socialite::driver('discord')->stateless()->user()->getAvatar();

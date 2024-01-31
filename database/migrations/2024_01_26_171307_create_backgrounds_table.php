@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('type');
             $table->string('discord_id');
             $table->string('note')->nullable();
+            $table->string('reader')->nullable();
             $table->timestamps();
         });
     }

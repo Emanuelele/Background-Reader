@@ -2,7 +2,23 @@
       <!-- table -->
       <div class="card">
         <div class="card-body">
-          <h4 class="card-title"> Backgrounds</h4>
+          <div style="display:flex; items-align: left;">
+            <h4 class="card-title"> Backgrounds</h4>
+            <div class="dropdown" style="padding-left:85%">
+              <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Filtra per
+              </button>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" href="{{ route('background.getall') }}">Rimuovi filtri</a>
+                <a class="dropdown-item" href="{{ route('background.get', ['type' => 'new']) }}">Nuovi</a>
+                <a class="dropdown-item" href="{{ route('background.get', ['type' => 'denied']) }}">Rifiutati</a>
+                <a class="dropdown-item" href="{{ route('background.get', ['type' => 'approved']) }}">Approvati</a>
+                <a class="dropdown-item" href="{{ route('background.get', ['type' => 'playing']) }}">Giocanti</a>
+                <a class="dropdown-item" href="{{ route('background.get', ['type' => 'perma']) }}">Permati</a>
+                <a class="dropdown-item" href="{{ route('background.get', ['type' => 'other']) }}">Wipati</a>
+              </div>
+            </div>
+          </div>
           <br>
           <div class="table-responsive">
             @php
@@ -31,10 +47,14 @@
               </thead>
               <tbody>
                 @foreach($backgrounds as $background)
+                  @php
+                    if(Illuminate\Support\Str::startsWith($background->link, 'pdf')) $link = route('background.view', ['filename' => $background->link]);
+                    else $link = $background->link;
+                  @endphp
                   <tr class="text-center" data-backgroundid="{{ $background->id }}">
                     <td style="width: 20%;">{{ $background->discord_id }}</td>
                     <td style="width: 20%;">{{ $background->generality }}</td>
-                    <td style="width: 20%"><a href="{{ $background->link }}" target="_blank"><code>Link</code></td>
+                    <td style="width: 20%"><a href="{{ $link }}" target="_blank"><code>Link</code></td>
                     <td style="width: 20%;"><label class="badge badge-{{ $background->type }}" style="width: 40%">{{ $background->type }}</label></td>
                     <td style="width: 20%;">{{ $background->created_at }}</label></td>
                     <td style="width: 20%;">
@@ -45,24 +65,6 @@
               </tbody>
             </table>
           </div>
-        </div>
-      </div>
-      <!-- more info popup -->
-      <div id="moreinfo" class="moreinfo card">
-        <i id="closebtn" class="close fa-solid fa-xmark"></i>
-        <div class="card-body">
-            <h4 class="card-title">Informazioni utente</h4>
-            <div class="table-responsive">
-            <table class="table">
-                <tbody>
-                <tr><td>Discord Username</td><td>=></td><td id="discord_username"></td></tr>
-                <tr><td>Discord Global Name</td><td>=></td><td id="discord_globalname"></td></tr>
-                <tr><td>Background presentati</td><td>=></td><td id="bgcount_presentati"></td></tr>
-                <tr><td>Background approvati</td><td>=></td><td id="bgcount_approvati"></td></tr>
-                <tr><td>Background rifiutati</td><td>=></td><td id="bgcount_rifiutati"></td></tr>
-                </tbody>
-            </table>
-            </div>
         </div>
       </div>
 </x-app-layout>

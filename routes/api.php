@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BackgroundController;
+use App\Http\Middleware\IpFilterMiddleware;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,5 +21,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::middleware('api', 'ip.filter')->group(function () {
-    Route::post('/makebackgroundmodule', [BackgroundController::class, 'make']);
+    Route::post('/newbackground', [BackgroundController::class, 'newBackgroundApi']);
 });
