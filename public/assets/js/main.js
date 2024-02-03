@@ -163,12 +163,12 @@ const updatestatus = async (element, newStatus) => {
     const row = element.closest('tr');
     const cells = row.cells;
     const data = [];
-    for (let i = 0; i < cells.length - 1; i++) data.push(row.cells[i].innerText);
+    for (let i = 0; i < row.cells.length; i++) if(i == 2) data.push(row.cells[i].querySelector('a').getAttribute('href')); else data.push(row.cells[i].innerText);
     const note = prompt("Inserisci delle note:");
-    const saveResponse = await request(backgroundDownloadUrl, { background_id: element.parentNode.parentNode.dataset.backgroundid, result: newStatus }, "POST");
-    if(saveResponse.success) {
-        const updateResponse =  await request(backgroundUpdateUrl, { background_id: element.parentNode.parentNode.dataset.backgroundid, discord_id: data[0], generality: data[1], link: data[2], type: newStatus, note: note }, "PATCH");
-        if(updateResponse.success) cells[3].innerHTML = '<label class="badge badge-'+newStatus+'"style="width: 40%">'+newStatus+'</label>';
+    const updateResponse =  await request(backgroundUpdateUrl, { background_id: element.parentNode.parentNode.dataset.backgroundid, discord_id: data[0], generality: data[1], link: data[2], type: newStatus, note: note }, "PATCH");
+    if(updateResponse.success) {
+        const saveResponse = await request(backgroundDownloadUrl, { background_id: element.parentNode.parentNode.dataset.backgroundid, result: newStatus }, "POST");
+        if(saveResponse.success) cells[3].innerHTML = '<label class="badge badge-'+newStatus+'"style="width: 40%">'+newStatus+'</label>';
         const resultResponse = await request(backgroundResultUrl, { background_id: element.parentNode.parentNode.dataset.backgroundid, result: newStatus }, "POST");
         if(resultResponse.success){
             updatestats(element);
@@ -319,6 +319,12 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
             setElementText("backgroundreaded", response.data.current_month_read_count);
             setElementText("backgroundreadedperc", response.data.percentage_change_read_count);
+            setElementText("current_month_denied_count", response.data.current_month_denied_count);
+            setElementText("percentage_change_denied_count", response.data.percentage_change_denied_count);
+            setElementText("current_month_approved_count", response.data.current_month_approved_count);
+            setElementText("percentage_change_approved_count", response.data.percentage_change_approved_count);
+            //setElementText("whitelist_users_count", response.data.whitelist_users_count);
+            //setElementText("whitelist_denied_users_count", response.data.whitelist_denied_users_count);
         }
     }
 });

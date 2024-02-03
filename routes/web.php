@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 
 use App\Http\Controllers\DiscordLogin;
+use App\Http\Controllers\DiscordController;
 use App\Http\Controllers\BackgroundController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\View;
@@ -36,6 +37,7 @@ Route::middleware('auth')->group(function () {
     Route::get('background/{filename}', function ($filename) {
         return view('readbackgroundfile', ['filename' => $filename]);
     })->name('background.view');
+    Route::get('test', [BackgroundController::class, 'sendDiscordResultMessage']);
 });
 
 Route::middleware('auth', 'admin')->group(function () {

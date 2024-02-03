@@ -113,14 +113,25 @@
                 <div class="row">
                   <div class="col-9">
                     <div class="d-flex align-items-center align-self-start">
-                      <h3 class="mb-0" id="useriswhitelisted">NO</h3> <!-- TO-DO -->
-                      <p class="text-success ml-2 mb-0 font-weight-medium"></p>
+                      @if( $additionalInfo['isWhitelisted'] == true)
+                        <h3 class="mb-0" id="useriswhitelisted">SI</h3>
+                        <p class="text-success ml-2 mb-0 font-weight-medium"></p>
+                      @else
+                        <h3 class="mb-0" id="useriswhitelisted">NO</h3>
+                        <p class="text-danger ml-2 mb-0 font-weight-medium"></p>
+                      @endif
                     </div>
                   </div>
                   <div class="col-3">
-                    <div class="icon icon-box-danger" id="useriswhitelistediconbg">
-                      <i class="material-icons" id="useriswhitelistedicon">close</i> <!-- TO-DO -->
+                    @if($additionalInfo['isWhitelisted'] == true)
+                    <div class="icon icon-box-success" id="useriswhitelistediconbg">
+                      <i class="material-icons" id="useriswhitelistedicon">check</i>
                     </div>
+                    @else
+                    <div class="icon icon-box-danger" id="useriswhitelistediconbg">
+                      <i class="material-icons" id="useriswhitelistedicon">close</i>
+                    </div>
+                    @endif
                   </div>
                 </div>
                 <h6 class="text-muted font-weight-normal">Is Whitelist</h6>

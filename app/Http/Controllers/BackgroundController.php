@@ -11,15 +11,14 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
 use GuzzleHttp\Client;
-use Barryvdh\DomPDF\PDF;
-use Dompdf\Dompdf;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Validator;
+use Config;
 
 class BackgroundController extends Controller {
-    /** BACKGROUND METHODS **/
+
     /**
      * Create a new Background record based on the provided Request data.
      *
@@ -107,43 +106,6 @@ class BackgroundController extends Controller {
         }
     }
 
-    /** DISCORD METHODS **/
-
-    /**
-     * Make a cURL request to the Discord API with the provided Discord ID.
-     *
-     * @param string $discordId
-     * @return array
-     */
-    private function makeDiscordApiRequest(string $discordId): array {
-        $apiUrl = "https://discord.com/api/v10/users/{$discordId}";
-        $ch = curl_init($apiUrl);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bot ' . env('DISCORD_BOT_TOKEN')]);
-        $response = curl_exec($ch);
-
-        if (!$response) {
-            return [
-                'error' => 'Errore nel server, riprova più tardi',
-                'data' => [],
-            ];
-        }
-
-        return json_decode($response, true);
-    }
-
-    /**
-     * Get the full URL of the Discord user's avatar.
-     *
-     * @param string $discordId
-     * @param string|null $avatarHash
-     * @return string|null
-     */
-    private function getAvatarUrl(string $discordId, string $avatarHash): ?string {
-        return is_null($avatarHash || $discordId) ? "https://cdn.discordapp.com/icons/1015976925367378040/a_8aab7490e9efb8cc53487de73e4521c7.webp?size=240" : 
-            "https://cdn.discordapp.com/avatars/{$discordId}/{$avatarHash}.png";
-    }
-
     /**
      * Get Discord user information based on the provided Discord ID.
      *
@@ -152,7 +114,7 @@ class BackgroundController extends Controller {
      */
     private function getDiscordUserInfo(string $background_id): array {
         $background = Background::find($background_id);
-        return array_merge($this->makeDiscordApiRequest($background->discord_id), $this->backgroundInfoFromDiscordUserId($background_id));
+        return array_merge(DiscordController::makeDiscordApiRequest($background->discord_id), $this->backgroundInfoFromDiscordUserId($background_id));
     }
 
     /**
@@ -164,8 +126,7 @@ class BackgroundController extends Controller {
     private function backgroundInfoFromDiscordUserId(string $background_id): array {
         $background = Background::find($background_id);
         return [
-            'isWhitelisted' => $this->isDiscorduserWhitelisted($background->discord_id),
-            'isBanned' => $this->isDiscorduserBanned($background->discord_id),
+            'isWhitelisted' => DiscordController::isDiscorduserWhitelisted($background->discord_id),
             'new' => DB::table('backgrounds')->where('discord_id', $background->discord_id)->count(),
             'approved' => DB::table('backgrounds')->where('type', 'approved')->where('discord_id', $background->discord_id)->count(),
             'denied' => DB::table('backgrounds')->where('type', 'denied')->where('discord_id', $background->discord_id)->count(),
@@ -174,33 +135,12 @@ class BackgroundController extends Controller {
     }
 
     /**
-     * Check if a Discord user is whitelisted.
-     *
-     * @param string $discord_id
-     * @return bool
-     */
-    public function isDiscorduserWhitelisted(string $discord_id): bool {
-        return false; //to-do
-    }
-
-    /**
-     * Check if a Discord user is banned.
-     *
-     * @param string $discord_id
-     * @return bool
-     */
-    public function isDiscorduserBanned(string $discord_id): bool {
-        return false; //to-do
-    }
-
-    /** ACTIONS METHODS **/
-    /**
      * Read the oldest new background and retrieve additional information.
      *
      * @return View
      */
     public function readBackground(): View | RedirectResponse {
-        $background =  Background::where('type', 'new')->orderBy('created_at', 'asc')->first();
+        $background =  Background::where('type', 'new')->orderBy('haspriority', 'desc')->orderBy('created_at', 'asc')->first();
         if(!$background) return redirect()->route('dashboard')->withErrors("Non ci sono background da leggere");
         $backgrounds =  Background::where('discord_id', $background->discord_id)->whereNotIn('id', [$background->id])->orderBy('created_at', 'asc')->get();
         $additionalInfo = $this->getDiscordUserInfo($background->id);
@@ -208,7 +148,7 @@ class BackgroundController extends Controller {
             'background' => $background,
             'backgrounds' => $backgrounds,
             'additionalInfo' => $additionalInfo,
-            'avatarUrl' => $this->getAvatarUrl($additionalInfo['id'], $additionalInfo['avatar']),
+            'avatarUrl' => DiscordController::getAvatarUrl($additionalInfo['id'], $additionalInfo['avatar']),
         ]);
     }
 
@@ -230,16 +170,7 @@ class BackgroundController extends Controller {
             'background' => $background,
             'backgrounds' => $backgrounds,
             'additionalInfo' => $additionalInfo,
-            'avatarUrl' => $this->getAvatarUrl($additionalInfo['id'], $additionalInfo['avatar']),
-        ]);
-    }
-
-
-    /** TO-FINISH AND IMPLEMENTING */
-    public function sendDiscordWebhook($message): void {
-        $webhookUrl = 'https://discord.com/api/webhooks/1201704436758753320/G8ppdeMi4V71qmtUC70ONyjL1Ax-t9wnvfd-ZdkhNlAoRQHdMXXIoPrW2TSwJrF9aNqz';
-        $response = Http::post($webhookUrl, [
-            'content' => $message,
+            'avatarUrl' => DiscordController::getAvatarUrl($additionalInfo['id'], $additionalInfo['avatar']),
         ]);
     }
     
@@ -253,14 +184,22 @@ class BackgroundController extends Controller {
         try {
             $background = Background::find($Request->background_id);
             if(!$background) return response()->json(['error' => 'Background non trovato'], 400);
-            if($Request->result == "approved") $message = '<@'.$background->discord_id.'> Background approvato! Note: "'.$background->note.'". By <@'.Auth::user()->id.'>';
-            else $message = '<@'.$background->discord_id.'> Background NON approvato! Note:"'.$background->note.'". By <@'.Auth::user()->id.'>';
-            $this->sendDiscordWebhook($message);
+            if($Request->result == "approved") {
+                DiscordController::removeRole($background->discord_id, Config::get('discord.waitingbg'));
+                DiscordController::removeRole($background->discord_id, Config::get('discord.bgdenied'));
+                DiscordController::addRole($background->discord_id, Config::get('discord.bgapproved'));
+            }
+            else {
+                DiscordController::removeRole($background->discord_id, Config::get('discord.waitingbg'));
+                DiscordController::addRole($background->discord_id, Config::get('discord.bgdenied'));
+                DiscordController::removeRole($background->discord_id, Config::get('discord.bgapproved'));
+            }
+            DiscordController::sendDiscordResultMessage(Config::get('discord.resultchannel'), $background->discord_id, $Request->result, $background->note);
             $background->reader = Auth::user()->id;
             $background->save();
             return response()->json(['success' => 'Background approvato con successo'], 200);
         } catch(Exception $e) {
-            return response()->json(['error' => 'Errore nel server'.$e], 500);
+            return response()->json(['error' => 'Errore nel server'], 500);
         }
         
     }
@@ -317,8 +256,9 @@ class BackgroundController extends Controller {
                 $pdfFileName = 'pdf_' . now()->format('YmdHis') . '.pdf';
                 $pdfPath = public_path('backgrounds' . DIRECTORY_SEPARATOR . $pdfFileName);
                 file_put_contents($pdfPath, $response->body());
-                $background->link = $pdfFileName;
-                $background->update();
+                $background->update([
+                    'link' => $pdfFileName,
+                ]);
                 return response()->json(['success' => 'Download e salvataggio completati con successo']);
             } else {
                 return response()->json(['error' => 'Errore nella richiesta al server Google'], 500);
@@ -335,39 +275,72 @@ class BackgroundController extends Controller {
      */
     public function getDahboardStats(): JsonResponse {
         $user = Auth::user();
-        $newBackgroundsCount = Background::whereBetween('created_at', [now()->subDays(7), now()])->count();
+        $newBackgroundsCount = Background::whereBetween('created_at', [now()->subDays(7), now()])
+            ->count();
         $deniedBackgroundsCount = Background::where('type', 'denied')
             ->whereBetween('created_at', [now()->subDays(7), now()])
             ->count();
-        $currentWeekNewBackgroundsCount = Background::whereBetween('created_at', [now()->subDays(14), now()->subDays(7)])->count();
-        $previousWeekNewBackgroundsCount = Background::whereBetween('created_at', [now()->subDays(14), now()->subDays(7)])->count();
-        $percentageChangeNewBackgrounds = ($previousWeekNewBackgroundsCount !== 0)
-            ? (($newBackgroundsCount - $previousWeekNewBackgroundsCount) / $previousWeekNewBackgroundsCount) * 100
-            : $newBackgroundsCount * 100;
+        $currentWeekNewBackgroundsCount = Background::whereBetween('created_at', [now()->subDays(14), now()->subDays(7)])
+            ->count();
+        $previousWeekNewBackgroundsCount = Background::whereBetween('created_at', [now()->subDays(14), now()->subDays(7)])
+            ->count();
         $currentWeekDeniedBackgroundsCount = Background::where('type', 'denied')
             ->whereBetween('created_at', [now()->subDays(14), now()->subDays(7)])
             ->count();
         $previousWeekDeniedBackgroundsCount = Background::where('type', 'denied')
             ->whereBetween('created_at', [now()->subDays(21), now()->subDays(14)])
             ->count();
-        $percentageChangeDeniedBackgrounds = ($previousWeekDeniedBackgroundsCount !== 0)
-            ? (($deniedBackgroundsCount - $previousWeekDeniedBackgroundsCount) / $previousWeekDeniedBackgroundsCount) * 100
-            : $deniedBackgroundsCount * 100;
         $currentMonthReadCount = Background::where('reader', $user->id)
             ->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
             ->count();
-        $previousMonthReadCount = Background::where('reader', $user->id)
-            ->whereBetween('created_at', [now()->subMonth()->startOfMonth(), now()->subMonth()->endOfMonth()])
+        $currentMonthDeniedCount = Background::where('reader', $user->id)
+            ->where('type', 'denied')
+            ->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
             ->count();
+        $currentMonthApprovedCount = Background::where('reader', $user->id)
+            ->where('type', 'approved')
+            ->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
+            ->count();
+        $previousMonthReadCount = Background::where('reader', $user->id)
+            ->whereBetween('created_at', [now()->subMonth()->endOfMonth(), now()->subDays(30)])
+            ->count();
+        $previousMonthDeniedCount = Background::where('reader', $user->id)
+            ->where('type', 'denied')
+            ->whereBetween('created_at', [now()->subMonth()->endOfMonth(), now()->subDays(30)])
+            ->count();
+        $previousMonthApprovedCount = Background::where('reader', $user->id)
+            ->where('type', 'approved')
+            ->whereBetween('created_at', [now()->subMonth()->endOfMonth(), now()->subDays(30)])
+            ->count();
+        $percentageChangeNewBackgrounds = ($previousWeekNewBackgroundsCount !== 0)
+            ? (($newBackgroundsCount - $previousWeekNewBackgroundsCount) / $previousWeekNewBackgroundsCount) * 100
+            : $newBackgroundsCount * 100;
+        $percentageChangeDeniedBackgrounds = ($previousWeekDeniedBackgroundsCount !== 0)
+            ? (($deniedBackgroundsCount - $previousWeekDeniedBackgroundsCount) / $previousWeekDeniedBackgroundsCount) * 100
+            : $deniedBackgroundsCount * 100;
         $percentageChangeReadCount = ($previousMonthReadCount !== 0)
             ? (($currentMonthReadCount - $previousMonthReadCount) / $previousMonthReadCount) * 100
             : $currentMonthReadCount * 100;
+        $percentageChangeDeniedCount = ($previousMonthDeniedCount !== 0)
+            ? (($currentMonthDeniedCount - $previousMonthDeniedCount) / $previousMonthDeniedCount) * 100
+            : $currentMonthDeniedCount * 100;
+        $percentageChangeApprovedCount = ($previousMonthApprovedCount !== 0)
+            ? (($currentMonthApprovedCount - $previousMonthApprovedCount) / $previousMonthApprovedCount) * 100
+            : $currentMonthApprovedCount * 100;
         $formatPercentage = function ($percentage) {
             return ($percentage >= 0) ? "+{$percentage}%" : "{$percentage}%";
         };
+        //$whitelistUsersCount = DiscordController::getCountUsersWithRole(Config::get('discord.whitelistrole'));
+        //$whitelistDeniedUsersCount = DiscordController::getCountUsersWithRole(Config::get('discord.whitelistrole'));
         $data = [
+            //'whitelist_users_count' => $whitelistUsersCount,
+            //'whitelist_denied_users_count' => $whitelistDeniedUsersCount,
             'current_month_read_count' => $currentMonthReadCount,
             'percentage_change_read_count' => $formatPercentage($percentageChangeReadCount),
+            'current_month_denied_count' => $currentMonthDeniedCount,
+            'percentage_change_denied_count' => $formatPercentage($percentageChangeDeniedCount),
+            'current_month_approved_count' => $currentMonthApprovedCount,
+            'percentage_change_approved_count' => $formatPercentage($percentageChangeApprovedCount),
             'new_backgrounds_count' => $newBackgroundsCount,
             'percentage_change_new_backgrounds' => $formatPercentage($percentageChangeNewBackgrounds),
             'denied_backgrounds_count' => $deniedBackgroundsCount,
@@ -376,15 +349,13 @@ class BackgroundController extends Controller {
         return response()->json(['success' => 'Statistiche caricate con successo', 'data' => $data]);
     }
 
-    /** API METHODS **/
-
     /**
      * API endpoint to submit a new background request.
      *
      * @param \Illuminate\Http\Request $Request The incoming HTTP request.
      * @return \Illuminate\Http\JsonResponse A JSON response indicating the success or error of the operation.
      */
-    public function newBackgroundApi(Request $Request): JsonResponse {
+    public function newBackgroundApi(Request $Request): JsonResponse { //TO_DO: controllo ruolo wl, 
         try {
             $validator = Validator::make($Request->all(), [
                 'google_doc_link' => 'required|url',
@@ -402,6 +373,7 @@ class BackgroundController extends Controller {
             $background->type = 'new';
             $background->link = $Request->google_doc_link;
             $background->generality = $Request->generality;
+            if(DiscordController::hasRole($Request->discord_id, Config::get('discord.whitelistrole'))) $background->haspriority = 1;
             $background->save();
             DB::commit();
             return response()->json(['success' => 'Verifica e registrazione bg completati con successo'], 200);

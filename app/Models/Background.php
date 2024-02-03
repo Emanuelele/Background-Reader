@@ -19,7 +19,8 @@ class Background extends Model {
         'link',
         'type',
         'discord_id',
-        'note'
+        'note',
+        'haspriority'
     ];
 
     /**
@@ -46,6 +47,7 @@ class Background extends Model {
         'link' => 'required|string',
         'type' => 'required|string',
         'discord_id' => 'required|string',
-        'note' => 'string'
+        'note' => 'string',
+        'haspriority' => 'bool'
     ];
 }

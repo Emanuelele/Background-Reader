@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('discord_id');
             $table->string('note')->nullable();
             $table->string('reader')->nullable();
+            $table->boolean('haspriority')->default(false);
             $table->timestamps();
         });
     }
