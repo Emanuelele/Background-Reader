@@ -1,4 +1,4 @@
-<p align="center"><a href="https://busipage.it" target="_blank"><img src="	https://instagram.ffco3-1.fna.fbcdn.net/v/t51.2885…9C8sPhtgA3Fm4OMuZGUMSA&oe=65BF9EC3&_nc_sid=8b3546" width="400" alt="Busipage Logo"></a></p>
+<p align="center"><a href="https://busipage.it" target="_blank"><img src="https://github.com/Emanuelele/Background-Reader/assets/80417622/3849fc9e-6c68-467b-a979-4ac35c25b401" width="400" alt="Busipage Logo"></a></p>
 
 ---
 
