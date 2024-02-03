@@ -26,11 +26,11 @@ Questa applicazione offre un'interfaccia intuitiva e completa per semplificare i
 
 - **Verifica automatica da parte della Rest-Api**: La Web-App dispone di una Rest-Api che provvederà autonomamente a controllare se il documento google presentato è accessibile e se l'utente rispetta i parametri prestabiliti per poter inviare un background.
 
-- **Salvataggio del background**: Se l'utente e il background soddisfano i requisiti sarà avviata la fase di registrazione nel database.
+- **Salvataggio del background**: Se l'utente e il background soddisfano i requisiti sarà avviata la fase di registrazione nel database. Se l'utente che invia il background è whitelistato avrà una priorità sugli altri background.
 
 - **Autenticazione tramite OAuth2 API Discord**: Il sitema di autenticazione per gli staffer è efficace e sicuro. Al momento del login l'utente verrà reindirizzato alla pagina di autenticazione ufficiale di Discord, una volta autenticato sarà reindirizzato nella dashboard della Web-App.
 
-- **Lettura di un background**: Al momento della lettura di un background, verrà presentato allo staffer il più vecchio background con status "NEW". Sarà possibile accedere direttamente dalla pagina alle statistiche personali dell'utente, al background presentato e ad eventuali background presentati in passato.
+- **Lettura di un background**: Al momento della lettura di un background, verrà presentato allo staffer il più vecchio background con status "NEW" tenendo coda della priorità di chi è già whitelistato. Sarà possibile accedere direttamente dalla pagina alle statistiche personali dell'utente, al background presentato e ad eventuali background presentati in passato.
 
 - **Approvazione/Rifiuto di un background**: Al momento dell'approvazione/rifiuto di un background la Web-App provvederà autonomamente a: 
     1) Scaricare in formato pdf il background tramite API Google. 
@@ -64,8 +64,8 @@ Lista permessi staffer:
 | Valore | Intestazione |
 | -------------- | -------------- |
 | staff     |Permesso per valutare i background     |
-| approved     | Permesso per modificare i background     |
-| denied     | Permesso per registrare altri staffer     |
+| admin     | Permesso per modificare i background     |
+| superadmin     | Permesso per registrare altri staffer     |
 
 
 ---
@@ -82,25 +82,27 @@ Lista permessi staffer:
 
 3. Copia il file `.env.example` e rinominalo in `.env`. Assicurati di configurare correttamente le variabili d'ambiente nel file `.env`, come la connessione al database.
 
-4. Genera una chiave di applicazione univoca eseguendo il comando:
+4. Configura il file Discord.php con i dati appropriati (contiene i dati del server discord con cui la Web-App interagirà).
+
+5. Genera una chiave di applicazione univoca eseguendo il comando:
 
    ```bash
    php artisan key:generate
    ```
 
-5. Esegui le migrazioni del database con il comando:
+6. Esegui le migrazioni del database con il comando:
 
    ```bash
    php artisan migrate
    ```
 
-6. Avvia il server di sviluppo locale eseguendo il comando:
+7. Avvia il server di sviluppo locale eseguendo il comando:
 
    ```bash
    php artisan serve
    ```
 
-7. Visita il tuo sito all'indirizzo `http://localhost:8000` nel tuo browser.
+8. Visita il tuo sito all'indirizzo `http://localhost:8000` nel tuo browser.
 
 ---
 

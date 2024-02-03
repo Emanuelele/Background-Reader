@@ -5,8 +5,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>{{ config('app.name', 'Laravel') }}</title>
+        <link rel="icon" type="image/x-icon" href="https://www.peakville.it/favicon.ico">
         <!-- main style -->
-        
         <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
         <link rel="stylesheet" href="{{ asset('assets/css/main.css') }}">
         <!-- notify -->
@@ -172,6 +172,8 @@
         <script src="{{ asset('assets/js/dashboard.js') }}"></script>
         <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
         <script src="{{ asset('assets/js/main.js') }}"></script>
+        <!-- others -->
+        <script src="{{ asset('assets/js/hoverable-collapse.js') }}"></script>
         @if ($errors->any())
             @foreach ($errors->all() as $error)
                 <script> showToast('{{ $error }}', true); </script>

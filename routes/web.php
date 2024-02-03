@@ -35,9 +35,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('updatebackground', [BackgroundController::class, 'updateBackground'])->name('background.update');
     Route::post('downloadbackground', [BackgroundController::class, 'saveBackground'])->name('background.save');
     Route::get('background/{filename}', function ($filename) {
-        return view('readbackgroundfile', ['filename' => $filename]);
+        return view('viewpdf', ['filename' => $filename]);
     })->name('background.view');
-    Route::get('test', [BackgroundController::class, 'sendDiscordResultMessage']);
 });
 
 Route::middleware('auth', 'admin')->group(function () {
