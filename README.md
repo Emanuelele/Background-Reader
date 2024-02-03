@@ -82,7 +82,7 @@ Lista permessi staffer:
 
 3. Copia il file `.env.example` e rinominalo in `.env`. Assicurati di configurare correttamente le variabili d'ambiente nel file `.env`, come la connessione al database.
 
-4. Configura il file Discord.php con i dati appropriati (contiene i dati del server discord con cui la Web-App interagirà).
+4. Configura il file `Discord.php` con i dati appropriati (contiene i dati del server discord con cui la Web-App interagirà).
 
 5. Genera una chiave di applicazione univoca eseguendo il comando:
 
