@@ -379,7 +379,7 @@ class BackgroundController extends Controller {
             return response()->json(['success' => 'Verifica e registrazione bg completati con successo'], 200);
         } catch (Exception $e) {
             DB::rollBack();
-            return response()->json(['error' => 'Errore durante la verifica del background: ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'Errore durante la verifica del background: '], 500);
         }
     }
 }

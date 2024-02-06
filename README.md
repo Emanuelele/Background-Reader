@@ -1,4 +1,4 @@
-<p align="center"><a href="https://busipage.it" target="_blank"><img src="	https://instagram.ffco3-1.fna.fbcdn.net/v/t51.2885…9C8sPhtgA3Fm4OMuZGUMSA&oe=65BF9EC3&_nc_sid=8b3546" width="400" alt="Busipage Logo"></a></p>
+<p align="center"><a href="https://busipage.it" target="_blank"><img src="https://github.com/Emanuelele/Background-Reader/assets/80417622/3849fc9e-6c68-467b-a979-4ac35c25b401" width="400" alt="Busipage Logo"></a></p>
 
 ---
 
@@ -82,7 +82,7 @@ Lista permessi staffer:
 
 3. Copia il file `.env.example` e rinominalo in `.env`. Assicurati di configurare correttamente le variabili d'ambiente nel file `.env`, come la connessione al database.
 
-4. Configura il file Discord.php con i dati appropriati (contiene i dati del server discord con cui la Web-App interagirà).
+4. Configura il file `Discord.php` con i dati appropriati (contiene i dati del server discord con cui la Web-App interagirà).
 
 5. Genera una chiave di applicazione univoca eseguendo il comando:
 
