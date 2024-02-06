@@ -273,7 +273,7 @@ class BackgroundController extends Controller {
      *
      * @return JsonResponse
      */
-    public function getDahboardStats(): JsonResponse {
+    public function getDashboardStats(): JsonResponse {
         $user = Auth::user();
         $newBackgroundsCount = Background::whereBetween('created_at', [now()->subDays(7), now()])
             ->count();
@@ -352,8 +352,8 @@ class BackgroundController extends Controller {
     /**
      * API endpoint to submit a new background request.
      *
-     * @param \Illuminate\Http\Request $Request The incoming HTTP request.
-     * @return \Illuminate\Http\JsonResponse A JSON response indicating the success or error of the operation.
+     * @param Request $Request The incoming HTTP request.
+     * @return JsonResponse A JSON response indicating the success or error of the operation.
      */
     public function newBackgroundApi(Request $Request): JsonResponse { //TO_DO: controllo ruolo wl, 
         try {

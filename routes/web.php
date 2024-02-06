@@ -26,7 +26,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
-    Route::get('dashboardstats', [BackgroundController::class, 'getDahboardStats'])->name('dashboard.stats');
+    Route::get('dashboardstats', [BackgroundController::class, 'getDashboardStats'])->name('dashboard.stats');
     Route::get('backgroundget/{type}', [BackgroundController::class, 'getBackgroundFromType'])->name('background.get');
     Route::get('getbackground', [BackgroundController::class, 'getAllBackground'])->name('background.getall');
     Route::get('readbackground', [BackgroundController::class, 'readBackground'])->name('background.read');
