@@ -361,11 +361,11 @@ class BackgroundController extends Controller {
                 'google_doc_link' => 'required|url',
                 'discord_id' => 'required|string',
             ]);
-            if ($validator->fails()) return response()->json(['error' => 'Bad request', 'details' => $validator->errors()], 400);
+            if ($validator->fails()) return response()->json(['error' => 'compila correttamente i campi del modulo', 'details' => $validator->errors()], 400);
             if (!$this->isGoogleDocLinkPublic($Request->google_doc_link)) return response()->json(['error' => 'Il link del documento Google non è pubblico o è invalido'], 400);
             $deniedBackgroundsCount = Background::where('type', 'denied')->where('discord_id', $Request->discord_id)->count();
             $newBackgroundsCount = Background::where('type', 'new')->where('discord_id', $Request->discord_id)->count();
-            if($newBackgroundsCount > 0) return response()->json(['error' => 'Hai già presentato un background: '], 400);
+            if($newBackgroundsCount > 0) return response()->json(['error' => 'Hai già presentato un background'], 400);
             if ($deniedBackgroundsCount >= 3) return response()->json(['error' => 'Hai già più di tre background rifiutati'], 400);
             DB::beginTransaction();
             $background = new Background();
