@@ -1,4 +1,4 @@
----
+
 
 ## Funzionalità della Web-App
 Questa applicazione offre un'interfaccia intuitiva e completa per semplificare il processo di invio, lettura e approvazione/rifiuto dei background dei personaggi presentati dagli utenti. Più nello specifico:
