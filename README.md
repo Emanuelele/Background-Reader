@@ -1,22 +1,3 @@
-<p align="center"><a href="https://busipage.it" target="_blank"><img src="https://github.com/Emanuelele/Background-Reader/assets/80417622/3849fc9e-6c68-467b-a979-4ac35c25b401" width="400" alt="Busipage Logo"></a></p>
-
----
-
-## Chi siamo
-
-Sviluppiamo strumenti, utili per aumentare la visibilità online, aumentare le vendite, gestire leads, e far risparmiare tempo prezioso a chi possiede un business. Con anni di esperienza nella creazione di soluzioni personalizzate per i nostri clienti, abbiamo acquisito una vasta conoscenza e competenza in molti settori digitali. Nello specifico ci occupiamo di sviluppare:
-
-- Landing pages
-- Analisi seo
-- Ecommerce
-- Web-App gestionali
-- Web-App contenuti
-- Database
-- Gaming servers
-- Community Discord
-
-Tutte le soluzioni e i recapiti sono disponibili su [busipage.it](https://busipage.it)
-
 ---
 
 ## Funzionalità della Web-App
