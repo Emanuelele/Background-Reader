@@ -19,6 +19,7 @@ class Background extends Model {
         'link',
         'type',
         'discord_id',
+        'steam_hex',
         'note',
         'haspriority'
     ];

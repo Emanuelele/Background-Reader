@@ -373,6 +373,7 @@ class BackgroundController extends Controller {
             $background->type = 'new';
             $background->link = $Request->google_doc_link;
             $background->generality = $Request->generality;
+            $background->steam_hex = $Request->steam_hex;
             if(DiscordController::hasRole($Request->discord_id, Config::get('discord.whitelistrole'))) $background->haspriority = 1;
             $background->save();
             DB::commit();
