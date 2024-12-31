@@ -7,6 +7,7 @@ use App\Http\Controllers\DiscordController;
 use App\Http\Controllers\BackgroundController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\View;
+use App\Http\Controllers\Api\LogController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -34,6 +35,8 @@ Route::middleware('auth')->group(function () {
     Route::post('resultBackground', [BackgroundController::class, 'resultBackground'])->name('background.result');
     Route::patch('updatebackground', [BackgroundController::class, 'updateBackground'])->name('background.update');
     Route::post('downloadbackground', [BackgroundController::class, 'saveBackground'])->name('background.save');
+    Route::get('/logs/{category?}', [LogController::class, 'index'])->name('logs.index');
+    Route::get('/logs/discord/{category?}', [LogController::class, 'index'])->name('logs.discord.index');
     Route::get('background/{filename}', function ($filename) {
         return view('viewpdf', ['filename' => $filename]);
     })->name('background.view');

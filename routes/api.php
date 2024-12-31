@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BackgroundController;
 use App\Http\Middleware\IpFilterMiddleware;
+use App\Http\Controllers\Api\LogController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,4 +23,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::middleware('api', 'ip.filter')->group(function () {
     Route::post('/newbackground', [BackgroundController::class, 'newBackgroundApi']);
+    Route::prefix('logs')->group(function () {
+        Route::post('/', [LogController::class, 'store']);
+    });
 });

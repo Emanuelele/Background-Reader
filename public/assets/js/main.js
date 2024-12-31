@@ -328,3 +328,30 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+    const searchbar = document.getElementById('searchbar');
+
+    if (!searchbar) return; // Se non c'è una barra di ricerca, esci.
+
+    // Funzione per identificare la pagina dei log
+    const isLogsPage = window.location.pathname.includes('/logs');
+
+    if (isLogsPage) {
+        searchbar.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') { // Premuto "Invio"
+                event.preventDefault();
+
+                // Ottieni il termine di ricerca
+                const searchValue = searchbar.value.trim();
+
+                // Ridirigi alla pagina dei log con il termine di ricerca
+                const baseUrl = window.location.origin + window.location.pathname;
+                const url = new URL(baseUrl);
+                url.searchParams.set('search', searchValue);
+
+                window.location.href = url.toString();
+            }
+        });
+    }
+});

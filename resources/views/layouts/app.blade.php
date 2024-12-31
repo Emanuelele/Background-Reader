@@ -76,12 +76,12 @@
                         </div>
                     </li>
                     <div style="margin-top: 5px;"></div>
-                    <li class="nav-item menu-items" style="display:none;">
+                    <li class="nav-item menu-items">
                         <a class="nav-link" data-toggle="collapse" href="#auth" aria-expanded="false" aria-controls="auth">
                           <span class="menu-icon">
-                            <i class="mdi mdi-security"></i>
+                            <i class="mdi mdi-check-decagram"></i>
                           </span>
-                          <span class="menu-title">Gestione wl</span>
+                          <span class="menu-title">Gestione WL</span>
                           <i class="menu-arrow"></i>
                         </a>
                         <div class="collapse" id="auth">
@@ -90,6 +90,61 @@
                             <li class="nav-item"> <a class="nav-link" href="">Whitelist negate</a></li>
                             <li class="nav-item"> <a class="nav-link" href="">Utenti whitelistati</a></li>
                             <li class="nav-item"> <a class="nav-link" href="">Lista ban</a></li>
+                          </ul>
+                        </div>
+                    </li>
+                    <li class="nav-item menu-items">
+                        <a class="nav-link" data-toggle="collapse" href="#log" aria-expanded="false" aria-controls="log">
+                          <span class="menu-icon">
+                            <i class="mdi mdi-security"></i>
+                          </span>
+                          <span class="menu-title">Log System</span>
+                          <i class="menu-arrow"></i>
+                        </a>
+                        <div class="collapse" id="log">
+                          <ul class="nav flex-column sub-menu">
+                            <li class="nav-item"> <a class="nav-link" href="{{ route('logs.index', ['category' => 'PLAYER_JOIN']) }}">Log Ingressi</a></li>
+                            <li class="nav-item"> <a class="nav-link" href="{{ route('logs.index', ['category' => 'PLAYER_QUIT']) }}">Log Uscite</a></li>
+                          </ul>
+                        </div>
+                    </li>
+                    <li class="nav-item menu-items">
+                        <a class="nav-link" data-toggle="collapse" href="#logdiscord" aria-expanded="false" aria-controls="logdiscord">
+                          <span class="menu-icon">
+                            <i class="mdi mdi-book"></i>
+                          </span>
+                          <span class="menu-title">Log Discord</span>
+                          <i class="menu-arrow"></i>
+                        </a>
+                        <div class="collapse" id="logdiscord">
+                          <ul class="nav flex-column sub-menu">
+                            <li class="nav-item"> <a class="nav-link" href="{{ route('logs.discord.index', ['category' => 'PLAYER_JOIN_DISCORD']) }}">Log Ingressi</a></li>
+                            <li class="nav-item"> <a class="nav-link" href="{{ route('logs.discord.index', ['category' => 'PLAYER_QUIT_DISCORD']) }}">Log Uscite</a></li>
+                            <li class="nav-item"> <a class="nav-link" href="{{ route('logs.discord.index', ['category' => 'PLAYER_DELETE_MESSAGE']) }}">Log mex. eliminati</a></li>
+                            <li class="nav-item"> <a class="nav-link" href="{{ route('logs.discord.index', ['category' => 'ROLE_ADD_DISCORD']) }}">Ruoli aggiunti</a></li>
+                            <li class="nav-item"> <a class="nav-link" href="{{ route('logs.discord.index', ['category' => 'ROLE_REMOVE_DISCORD']) }}">Ruoli rimossi</a></li>
+                            <li class="nav-item"> <a class="nav-link" href="{{ route('logs.discord.index', ['category' => 'COMMAND_EXEC_DISCORD']) }}">Comandi eseguiti</a></li>
+                            <li class="nav-item"> <a class="nav-link" href="{{ route('logs.discord.index', ['category' => 'VOICE_CHANNEL_JOIN_DISCORD']) }}">Join canale</a></li>
+                            <li class="nav-item"> <a class="nav-link" href="{{ route('logs.discord.index', ['category' => 'VOICE_CHANNEL_LEFT_DISCORD']) }}">Left canale</a></li>
+                            <li class="nav-item"> <a class="nav-link" href="{{ route('logs.discord.index', ['category' => 'BUTTON_CLICK_DISCORD']) }}">Pulsanti cliccati</a></li>
+                            <li class="nav-item"> <a class="nav-link" href="{{ route('logs.discord.index', ['category' => 'MODAL_SUBMIT_DISCORD']) }}">Form inviati</a></li>
+                            <li class="nav-item"> <a class="nav-link" href="{{ route('logs.discord.index', ['category' => 'SELECT_MENU_INTERACTION_DISCORD']) }}">Select elements</a></li>
+                          </ul>
+                        </div>
+                    </li>
+                    <li class="nav-item menu-items">
+                        <a class="nav-link" data-toggle="collapse" href="#db" aria-expanded="false" aria-controls="db">
+                          <span class="menu-icon">
+                            <i class="mdi mdi-database"></i>
+                          </span>
+                          <span class="menu-title">Gestione database</span>
+                          <i class="menu-arrow"></i>
+                        </a>
+                        <div class="collapse" id="db">
+                          <ul class="nav flex-column sub-menu">
+                          <li class="nav-item"> <a class="nav-link" href="">Skills</a></li>
+                          <li class="nav-item"> <a class="nav-link" href="">Money</a></li>
+                          <li class="nav-item"> <a class="nav-link" href="">Peds</a></li>
                           </ul>
                         </div>
                     </li>
