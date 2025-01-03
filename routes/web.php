@@ -22,14 +22,14 @@ use App\Http\Controllers\Api\LogController;
 Route::get('/', function () {
     return view('login');
 });
-
+Route::post('discord/tags/', [DiscordController::class, 'getDiscordTags']);
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
     Route::get('dashboardstats', [BackgroundController::class, 'getDashboardStats'])->name('dashboard.stats');
-    Route::get('backgroundget/{type}', [BackgroundController::class, 'getBackgroundFromType'])->name('background.get');
-    Route::get('getbackground', [BackgroundController::class, 'getAllBackground'])->name('background.getall');
+    
+    Route::get('backgroundsget/{type?}', [BackgroundController::class, 'getBackgrounds'])->name('background.get');
     Route::get('readbackground', [BackgroundController::class, 'readBackground'])->name('background.read');
     Route::post('showmoreinfo', [BackgroundController::class, 'backgroundMoreInfo'])->name('background.info');
     Route::post('resultBackground', [BackgroundController::class, 'resultBackground'])->name('background.result');

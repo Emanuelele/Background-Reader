@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>{{ config('app.name', 'Laravel') }}</title>
-        <link rel="icon" type="image/x-icon" href="https://www.peakville.it/favicon.ico">
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
         <!-- main style -->
         <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
         <link rel="stylesheet" href="{{ asset('assets/css/main.css') }}">
@@ -31,8 +31,8 @@
         <div class="container-scroller">
             <nav class="sidebar sidebar-offcanvas" id="sidebar">
                 <div class="sidebar-brand-wrapper d-none d-lg-flex align-items-center justify-content-center fixed-top">
-                    <a class="sidebar-brand brand-logo" href="{{ route('dashboard') }}"><img src="https://www.peakville.it/_nuxt/logo.20020244.png" alt="logo" /></a>
-                    <a class="sidebar-brand brand-logo-mini" href="{{ route('dashboard') }}"><img src="https://cdn.discordapp.com/icons/1015976925367378040/a_8aab7490e9efb8cc53487de73e4521c7.webp?size=96" alt="logo" /></a>
+                    <a class="sidebar-brand brand-logo" href="{{ route('dashboard') }}"><img src="{{ asset('assets/images/logo.png') }}" alt="logo" /></a>
+                    <a class="sidebar-brand brand-logo-mini" href="{{ route('dashboard') }}"><img src="{{ asset('assets/images/logop.jpg') }}" alt="logo" /></a>
                 </div>
                 <ul class="nav">
                     <li class="nav-item profile">
@@ -71,7 +71,7 @@
                         <div class="collapse" id="ui-basic">
                           <ul class="nav flex-column sub-menu">
                             <li class="nav-item"> <a class="nav-link" href="{{ route('background.read') }}">Leggi un background</a></li>
-                            <li class="nav-item"> <a class="nav-link" href="{{ route('background.getall') }}">Tutti i background</a></li>
+                            <li class="nav-item"> <a class="nav-link" href="{{ route('background.get') }}">Tutti i background</a></li>
                           </ul>
                         </div>
                     </li>
@@ -219,8 +219,6 @@
         <!-- chart -->
         <script src="{{ asset('assets/js/chart.js') }}"></script>
         <script src="{{ asset('assets/vendors/chart.js/Chart.min.js') }}"></script>
-        <!-- icons and fonts -->
-        <script src="https://kit.fontawesome.com/eadf88c17f.js" crossorigin="anonymous"></script>
         <!-- notify -->
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
         <!-- main js -->

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Config;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Client\Pool;
 
 class DiscordController extends Controller {
 
@@ -149,7 +150,7 @@ class DiscordController extends Controller {
      * @return string|null
      */
     public static function getAvatarUrl(string $discordId, string $avatarHash): ?string {
-        return is_null($avatarHash || $discordId) ? "https://cdn.discordapp.com/icons/1015976925367378040/a_8aab7490e9efb8cc53487de73e4521c7.webp?size=240" : 
+        return is_null($avatarHash || $discordId) ? asset('assets/images/logop.jpg') : 
             "https://cdn.discordapp.com/avatars/{$discordId}/{$avatarHash}.png";
     }
 
@@ -179,5 +180,67 @@ class DiscordController extends Controller {
             'color' => $color,
         ];
         self::sendEmbedMessage($channelId, $embedData);
+    }
+
+    /**
+     * Get the Discord tag for a given Discord ID using Discord API.
+     *
+     * @param string $discordId
+     * @return string|null
+     */
+    public function getDiscordTags(Request $request): array {
+        $token = env('DISCORD_BOT_TOKEN'); // Usa il token del bot Discord
+        
+        // Se discordIds è passato come stringa, convertilo in un array
+        if (is_string($request->discordIds)) {
+            $discordIds = explode(',', $request->discordIds);
+        } elseif (is_array($request->discordIds)) {
+            $discordIds = $request->discordIds;
+        } else {
+            return [];  // Se discordIds non è né una stringa né un array, ritorna un array vuoto
+        }
+    
+        // Assicurati che ogni ID sia una stringa
+        $discordIds = array_map(function ($id) {
+            return (string) $id;
+        }, $discordIds);
+
+        $headers = [
+            'Authorization' => 'Bot ' . $token,
+            'Content-Type' => 'application/json',
+        ];
+
+        $responses = Http::pool(function (Pool $pool) use ($discordIds, $headers) {
+            $requests = [];
+            
+            // Aggiungi ogni richiesta al pool
+            foreach ($discordIds as $discordId) {
+                $requests[] = $pool->withHeaders($headers)->get("https://discord.com/api/v10/users/{$discordId}");
+            }
+        
+            return $requests;
+        });
+        
+    
+        // Verifica se le risposte sono un array
+        if (!is_array($responses)) {
+            return [];  // Restituisci un array vuoto in caso di errore
+        }
+
+        // Processa i risultati e raccogli i tag
+        $discordTags = [];
+        foreach ($responses as $index => $response) {
+            $discordId = $discordIds[$index];
+
+            if ($response->successful()) {
+                $data = $response->json();
+                $discordTags[$discordId] = $data['username'];
+            } else {
+                // Se la richiesta fallisce, aggiungi un messaggio di errore per l'ID
+                $discordTags[$discordId] = "Errore nel recupero del tag";
+            }
+        }
+
+        return $discordTags;
     }
 }

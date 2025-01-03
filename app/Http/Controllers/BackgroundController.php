@@ -39,23 +39,27 @@ class BackgroundController extends Controller {
     }
 
     /**
-     * Retrieve backgrounds of a specific type and render a view.
-     *
-     * @param string $type
-     * @return View
-     */
-    public function getBackgroundFromType(string $type): View {
-        $backgrounds = Background::where('type', $type)->get();
-        return view('backgrounds', ['backgrounds' => $backgrounds]);
-    }
-
-    /**
      * Retrieve all backgrounds and render a view.
      *
      * @return View
      */
-    public function getAllBackground(): View{
-        $backgrounds = Background::all();
+    public function getBackgrounds(Request $request, $type = null): View {
+        $search = $request->input('search');
+        $query = Background::query();
+        if($type) $query->where('type', $type);
+        if ($search) {
+            $query->where('generality', 'like', "%$search%")
+            ->orWhere('discord_id', 'like', "%$search%")
+            ->orWhere('type', 'like', "%$search%")
+            ->orWhere('steam_hex', 'like', "%$search%")
+            ->orWhere('note', 'like', "%$search%")
+            ->orWhere('reader', 'like', "%$search%")
+            ->orWhere('created_at', 'like', "%$search%")
+            ->orWhere('updated_at', 'like', "%$search%");
+        }
+            
+       $backgrounds = $query->paginate(20);
+
         return view('backgrounds', ['backgrounds' => $backgrounds]);
     }
 

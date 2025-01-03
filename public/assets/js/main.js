@@ -6,7 +6,7 @@
 const allButtons = `
     <button onclick=\"updatestatus(this, 'approved')\" type=\"button\" class=\"btn btn-primary btn-rounded btn-icon\"><i class=\"material-icons\">done</i></button>
     <button onclick=\"updatestatus(this, 'denied')\" type=\"button\" class=\"btn btn-warning btn-rounded btn-icon\"><i class=\"material-icons\">close</i></button>
-    <button onclick=\"edit(this)\" type=\"button\" class=\"btn btn-success btn-rounded btn-icon\"><i class=\"material-icons\">edit</i></button>
+    <!--<button onclick=\"edit(this)\" type=\"button\" class=\"btn btn-success btn-rounded btn-icon\"><i class=\"material-icons\">edit</i></button>-->
     <button onclick=\"cancel(this)\" type=\"button\" class=\"btn btn-danger btn-rounded btn-icon\"><i class=\"material-icons\">delete</i></button>
     <button onclick=\"info(this)\" type=\"button\" class=\"btn btn-info btn-rounded btn-icon\"><i class=\"material-icons\">info</i></button>
 `;
@@ -336,6 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Funzione per identificare la pagina dei log
     const isLogsPage = window.location.pathname.includes('/logs');
+    const isBackgroundsPage = window.location.pathname.includes('/backgrounds');
 
     if (isLogsPage) {
         searchbar.addEventListener('keypress', (event) => {
@@ -354,4 +355,118 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+    if(isBackgroundsPage){
+        searchbar.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+
+                // Ottieni il termine di ricerca
+                const searchValue = searchbar.value.trim();
+
+                // Ridirigi alla pagina dei log con il termine di ricerca
+                const baseUrl = window.location.origin + window.location.pathname;
+                const url = new URL(baseUrl);
+                url.searchParams.set('search', searchValue);
+
+                window.location.href = url.toString();
+            }
+        });
+    }
 });
+
+
+let isTagsDisplayed = false; // Variabile per tenere traccia dello stato (ID o tag)
+let discordTagsMap = {}; // Mappa per tenere traccia dei tag Discord (ID -> tag)
+let originalContentMap = {}; // Mappa per memorizzare l'originale ID/Tag
+
+async function replaceDiscordIdsWithTags() {
+    const table = document.getElementById('SearchableTable');
+    if (!table) {
+        console.error('Tabella non trovata');
+        return;
+    }
+
+    const discordIdRegex = /^\d{17,19}$/;
+    const rows = table.querySelectorAll('tr');
+
+    if (!isTagsDisplayed && Object.keys(discordTagsMap).length === 0) {
+        const discordIds = [];
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            cells.forEach(cell => {
+                const text = cell.textContent.trim();
+                // Se il testo corrisponde a un Discord ID, aggiungilo all'array
+                if (discordIdRegex.test(text)) {
+                    discordIds.push(text);
+                }
+            });
+        });
+
+        if (discordIds.length > 0) {
+            try {
+                // Chiediamo i tag Discord al backend solo se non sono già stati caricati
+                discordTagsMap = await fetchDiscordTags(discordIds);
+            } catch (error) {
+                console.error('Errore durante il recupero dei tag Discord', error);
+            }
+        }
+    }
+
+    const rowsToUpdate = Array.from(rows); // Converti la NodeList in array per poterla modificare
+
+    rowsToUpdate.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        cells.forEach(cell => {
+            const text = cell.textContent.trim();
+            
+            if (isTagsDisplayed) {
+                // Quando stiamo mostrando i tag, sostituire il tag con l'ID
+                const originalId = originalContentMap[text];
+                if (originalId) {
+                    cell.textContent = originalId; // Ripristina l'ID
+                }
+            } else {
+                // Quando stiamo mostrando gli ID, sostituire l'ID con il tag
+                const tag = discordTagsMap[text];
+                if (tag) {
+                    cell.textContent = tag;
+                    originalContentMap[tag] = text; // Memorizza l'ID originale con il tag
+                }
+            }
+        });
+    });
+
+    // Alterna lo stato di visualizzazione
+    isTagsDisplayed = !isTagsDisplayed;
+}
+
+async function fetchDiscordTags(discordIds) {
+    const token = document.querySelector('meta[name="csrf-token"]').content;
+    try {
+        const response = await fetch('/discord/tags', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': token,
+            },
+            body: JSON.stringify({ discordIds }),
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            
+            // Logga la risposta per capire la struttura dei dati
+            console.log('Risposta API:', data);
+            
+            return data;
+        } else {
+            console.error(`Errore API: ${response.status} ${response.statusText}`);
+            return {};
+        }
+    } catch (error) {
+        console.error('Errore nella richiesta API:', error);
+        return {};
+    }
+}
+
+document.getElementById('showtag').addEventListener('click', replaceDiscordIdsWithTags);

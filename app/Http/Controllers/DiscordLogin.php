@@ -45,7 +45,7 @@ class DiscordLogin extends Controller {
         $auth = auth()->loginUsingId($user->id, true);
         if(!$auth) return redirect()->route('login')->withErrors('Accesso negato');
         DB::table('ws_users')->where('id', $user->id)->update([
-            'avatar' => is_null($avatarurl) ? "https://cdn.discordapp.com/icons/1015976925367378040/a_8aab7490e9efb8cc53487de73e4521c7.webp?size=240" : $avatarurl,
+            'avatar' => is_null($avatarurl) ? asset('assets/images/logop.jpg') : $avatarurl,
             'username' => $user->user['global_name']
         ]);
         return redirect()->route('dashboard');

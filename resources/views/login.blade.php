@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>{{ config('app.name', 'Laravel') }}</title>
-        <link rel="icon" type="image/x-icon" href="https://www.peakville.it/favicon.ico">
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
         <link rel="stylesheet" href="{{ asset('assets/login/style.css') }}">
         <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
@@ -27,9 +27,9 @@
             @endforeach
         @endif
         <div id="__nuxt">
-            <div class="bg-home-background h-screen w-screen bg-[length:auto_120%] bg-center bg-no-repeat">
+            <div style="background-image: url('{{ asset('assets/images/background.jpg') }}'" class="bg-home-background h-screen w-screen bg-[length:auto_120%] bg-center bg-no-repeat">
                 <div class="flex h-screen w-screen flex-col items-center justify-center bg-p-black-500/80">
-                    <img src="https://www.peakville.it/_nuxt/logo.20020244.png" alt="Peakville" class="block w-40 md:w-52" draggable="false">
+                    <img src="{{ asset('assets/images/logo.png') }}" alt="Peakville" class="block w-40 md:w-52" draggable="false">
                     <div class="mt-9 text-xl font-bold text-p-beige-100 md:text-2xl"> Gestionale Peakville '70 vibes </div>
                     <div class="mt-7 flex w-fit flex-col gap-4 md:flex-row">
                         <a href="{{ route('login.handler') }}" target="_self" class="block w-fit">

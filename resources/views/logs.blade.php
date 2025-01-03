@@ -2,6 +2,26 @@
     <div class="card">
         <div class="card-body">
             <h4 class="card-title">Logs</h4>
+            <div style="display:flex; items-align: left;">
+            <h4 class="card-title"> Backgrounds</h4>
+            <div class="dropdown" style="padding-left:85%">
+              <!--<button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Filtra per
+              </button>-->
+              <button class="btn btn-primary" type="button" aria-expanded="false" id="showtag">
+                Mostra/Nascondi nomi
+              </button>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" href="{{ route('background.get') }}">Rimuovi filtri</a>
+                <a class="dropdown-item" href="{{ route('background.get', ['type' => 'new']) }}">Nuovi</a>
+                <a class="dropdown-item" href="{{ route('background.get', ['type' => 'denied']) }}">Rifiutati</a>
+                <a class="dropdown-item" href="{{ route('background.get', ['type' => 'approved']) }}">Approvati</a>
+                <a class="dropdown-item" href="{{ route('background.get', ['type' => 'playing']) }}">Giocanti</a>
+                <a class="dropdown-item" href="{{ route('background.get', ['type' => 'perma']) }}">Permati</a>
+                <a class="dropdown-item" href="{{ route('background.get', ['type' => 'other']) }}">Wipati</a>
+              </div>
+            </div>
+          </div>
             <br>
             <div class="table-responsive">
                 <table class="table" id="SearchableTable">
